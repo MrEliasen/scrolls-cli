@@ -112,6 +112,11 @@ func NewSelector(initial string) string {
 		i++
 	}
 
+	search := textinput.New()
+	search.Placeholder = "Search"
+	search.CharLimit = 20
+	search.Width = 20
+
 	t := table.New(
 		table.WithColumns(columns),
 		table.WithRows(rows),
@@ -120,7 +125,10 @@ func NewSelector(initial string) string {
 	)
 
 	if tSelection > -1 {
+		t.Focus()
 		t.SetCursor(tSelection)
+	} else {
+		search.Focus()
 	}
 
 	s := table.DefaultStyles()
@@ -134,12 +142,6 @@ func NewSelector(initial string) string {
 		Background(lipgloss.Color("57")).
 		Bold(false)
 	t.SetStyles(s)
-
-	search := textinput.New()
-	search.Placeholder = "Search"
-	search.Focus()
-	search.CharLimit = 20
-	search.Width = 20
 
 	selection := &selectionResult{
 		value: initial,
