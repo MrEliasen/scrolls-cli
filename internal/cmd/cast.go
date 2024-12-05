@@ -5,8 +5,10 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/mreliasen/scrolls-cli/internal/scrolls"
+	"github.com/mreliasen/scrolls-cli/internal/scrolls/file_handler"
 	"github.com/spf13/cobra"
 )
 
@@ -29,24 +31,69 @@ var castCmd = &cobra.Command{
 			return
 		}
 
-		execParams := s.GetExec()
-		if execParams == nil {
+		ex := s.GetExec()
+		if ex == nil {
 			fmt.Printf("no type set for this scroll")
 			return
 		}
 
-		scroll := exec.Command(execParams.Bin, execParams.Args...)
-		scroll.Stdout = os.Stdout
-		scroll.Stderr = os.Stderr
-
-		if err := scroll.Run(); err != nil {
-			log.Fatalf("Error casting scroll: %v", err)
+		if !runAsFile(s, ex) {
+			err = castInline(s, ex)
+			if err == nil {
+				return
+			}
 		}
 
-		if execParams.TempFile != nil {
-			execParams.TempFile.Delete()
+		tmp := s.MakeTempFile(ex.Exec.Ext)
+		if tmp == nil {
+			log.Fatalln("Error casting scroll, failed prepare the scroll")
+			return
 		}
+
+		err = castFile(tmp, ex)
+		if err != nil {
+			log.Fatalf("Error casting scroll: %s", err.Error())
+		}
+
+		tmp.Delete()
 	},
+}
+
+func runAsFile(s *file_handler.FileHandler, ex *file_handler.ExecCommand) bool {
+	if ex.Exec.FileOnly {
+		return true
+	}
+
+	// some hacky overrides
+	switch ex.Exec.Bin {
+	case "php":
+		for _, l := range s.Lines {
+			if strings.Contains(l, "<?") {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func castInline(s *file_handler.FileHandler, ex *file_handler.ExecCommand) error {
+	args := ex.Exec.Args
+	args = append(args, s.Body())
+
+	scroll := exec.Command(ex.Exec.Bin, args...)
+	scroll.Stdout = os.Stdout
+	scroll.Stderr = os.Stderr
+
+	return scroll.Run()
+}
+
+func castFile(s *file_handler.FileHandler, ex *file_handler.ExecCommand) error {
+	scroll := exec.Command(ex.Exec.Bin, s.Path())
+	scroll.Stdout = os.Stdout
+	scroll.Stderr = os.Stderr
+
+	return scroll.Run()
 }
 
 func init() {

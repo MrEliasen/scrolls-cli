@@ -1,66 +1,118 @@
 package file_handler
 
 type ExecCommand struct {
-	Bin      string
-	Args     []string
+	Exec     ExecArgs
 	TempFile *FileHandler
 }
 
-type ExecArgs []string
-
-// bin:extension
-var ExecFileRequired = map[string]string{
-	"go": "go",
+type ExecArgs struct {
+	Bin      string
+	Args     []string
+	Ext      string
+	FileOnly bool
 }
 
 var ExecList = map[string]ExecArgs{
-	"plain-text": {},
+	"plain-text": {
+		Bin:      "",
+		Args:     []string{""},
+		Ext:      ".txt",
+		FileOnly: false,
+	},
 	"php": {
-		"-r",
+		Bin:      "php",
+		Args:     []string{"-r"},
+		Ext:      ".php",
+		FileOnly: false,
 	},
 	"go": {
-		"run",
+		Bin:      "go",
+		Args:     []string{"run"},
+		Ext:      ".go",
+		FileOnly: true,
 	},
 	"bash": {
-		"-c",
+		Bin:      "bash",
+		Args:     []string{"-c"},
+		Ext:      ".sh",
+		FileOnly: false,
 	},
 	"python": {
-		"-c",
+		Bin:      "python",
+		Args:     []string{"-c"},
+		Ext:      ".py",
+		FileOnly: false,
 	},
 	"node": {
-		"-e",
+		Bin:      "node",
+		Args:     []string{"-e"},
+		Ext:      ".js",
+		FileOnly: false,
 	},
 	"ruby": {
-		"-e",
+		Bin:      "ruby",
+		Args:     []string{"-e"},
+		Ext:      ".rb",
+		FileOnly: false,
 	},
 	"perl": {
-		"-e",
+		Bin:      "perl",
+		Args:     []string{"-e"},
+		Ext:      ".pl",
+		FileOnly: false,
 	},
 	"Rscript": {
-		"-e",
+		Bin:      "Rscript",
+		Args:     []string{"-e"},
+		Ext:      ".R",
+		FileOnly: false,
 	},
 	"julia": {
-		"-e",
+		Bin:      "julia",
+		Args:     []string{"-e"},
+		Ext:      ".jl",
+		FileOnly: false,
 	},
 	"cargo": {
-		"script",
-		"-e",
+		Bin:      "cargo",
+		Args:     []string{"script", "-e"},
+		Ext:      ".rs",
+		FileOnly: false,
 	},
 	"runhashell": {
-		"-e",
+		Bin:      "runhashell",
+		Args:     []string{"-e"},
+		Ext:      ".hs",
+		FileOnly: false,
 	},
 	"lua": {
-		"-e",
+		Bin:      "lua",
+		Args:     []string{"-e"},
+		Ext:      ".lua",
+		FileOnly: false,
 	},
 	"kotlin": {
-		"-script",
+		Bin:      "kotlinc",
+		Args:     []string{"-script"},
+		Ext:      ".kts",
+		FileOnly: false,
 	},
-	"java": {},
+	"java": {
+		Bin:      "java",
+		Args:     []string{},
+		Ext:      ".java",
+		FileOnly: true,
+	},
 	"powershell": {
-		"-command",
+		Bin:      "powershell",
+		Args:     []string{"-command"},
+		Ext:      ".ps1",
+		FileOnly: false,
 	},
 	"dotnet": {
-		"script",
-		"-e",
+		Bin:      "dotnet",
+		Args:     []string{"script", "-e"},
+		Ext:      ".csx",
+		FileOnly: false,
 	},
 }

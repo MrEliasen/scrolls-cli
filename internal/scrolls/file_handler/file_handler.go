@@ -40,37 +40,21 @@ func (f *FileHandler) GetExec() *ExecCommand {
 	}
 
 	exec := &ExecCommand{
-		Bin: f.Type,
-	}
-
-	if ext, found := ExecFileRequired[f.Type]; found {
-		exec.TempFile = f.makeTempFile(ext)
-		if exec.TempFile == nil {
-			return nil
-		}
-	}
-
-	for _, a := range ExecList[f.Type] {
-		exec.Args = append(exec.Args, a)
-	}
-
-	if exec.TempFile != nil {
-		exec.Args = append(exec.Args, exec.TempFile.path)
-	} else {
-		exec.Args = append(exec.Args, f.Body())
+		Exec: ExecList[f.Type],
 	}
 
 	return exec
 }
 
-func (f *FileHandler) makeTempFile(ext string) *FileHandler {
+func (f *FileHandler) MakeTempFile(ext string) *FileHandler {
 	b := f.Body()
 
 	if b == "" {
 		return nil
 	}
 
-	tmp := New(fmt.Sprintf("%s_%d.%s", f.path, time.Now().UnixMilli(), ext))
+	tmp := New(fmt.Sprintf("%s_tmp_%d%s", f.path, time.Now().UnixMilli(), ext))
+	tmp.Lines = f.Lines
 	tmp.Save(true)
 	return tmp
 }
@@ -116,7 +100,7 @@ func (f *FileHandler) Delete() {
 	}
 
 	if flags.Debug() {
-		fmt.Printf("deleted cached scrolls: %s\n", f.path)
+		fmt.Printf("deleted scrolls: %s\n", f.path)
 	}
 }
 

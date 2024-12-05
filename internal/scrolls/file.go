@@ -50,9 +50,13 @@ func (c *FileClient) NewScroll(name string) {
 		panic(err)
 	}
 
-	f := file_handler.New(fmt.Sprintf("%s/%s", path, name))
+	fType := tui.NewSelector("")
+	ex := file_handler.ExecList[fType]
+
+	f := file_handler.New(fmt.Sprintf("%s/%s%s", path, name, ex.Ext))
 	f.Id = uuid.String()
 	f.Name = name
+	f.Type = fType
 
 	editor := c.client.settings.GetEditor()
 	cmd := exec.Command(editor, f.Path())
@@ -66,8 +70,8 @@ func (c *FileClient) NewScroll(name string) {
 		return
 	}
 
-	f.Type = tui.NewSelector(f.Type)
 	f.WriteHeader()
+	os.Rename(f.Path(), fmt.Sprintf("%s/%s", path, name))
 }
 
 func (c *FileClient) EditScroll(name string) {
@@ -86,9 +90,12 @@ func (c *FileClient) EditScroll(name string) {
 		panic(err)
 	}
 
-	tmp_file := file_handler.New(fmt.Sprintf("%s.scroll_tmp", path))
-	tmp_file.Lines = f.Lines
-	tmp_file.Save(true)
+	tmp_file := f.MakeTempFile(f.GetExec().Exec.Ext)
+	createdAt, err := os.Stat(tmp_file.Path())
+	if err != nil {
+		log.Fatalln("failed to prepare scroll for editing")
+		return
+	}
 
 	editor := c.client.settings.GetEditor()
 	cmd := exec.Command(editor, tmp_file.Path())
@@ -102,9 +109,19 @@ func (c *FileClient) EditScroll(name string) {
 		return
 	}
 
-	tmp_file.Load()
+	updatedAt, err := os.Stat(tmp_file.Path())
+	if err != nil {
+		log.Fatalln("failed to prepare scroll for editing")
+		tmp_file.Delete()
+		return
+	}
 
-	log.Printf("%s", tmp_file.Body())
+	if createdAt.ModTime().Unix() == updatedAt.ModTime().Unix() {
+		log.Println("no changes made to scroll")
+		return
+	}
+
+	tmp_file.Load()
 
 	// update original file content
 	f.Lines = tmp_file.Lines
