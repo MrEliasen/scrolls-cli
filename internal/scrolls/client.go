@@ -3,10 +3,8 @@ package scrolls
 import (
 	"fmt"
 	"io"
-	"mime/multipart"
 	"net/http"
 	"net/url"
-	"os"
 	"runtime"
 
 	"github.com/mreliasen/scrolls-cli/internal/flags"
@@ -120,38 +118,4 @@ func (c *Client) Put(path string, body io.Reader) (*http.Response, error) {
 
 func (c *Client) Delete(path string) (*http.Response, error) {
 	return c.apiCall("DELETE", path, nil)
-}
-
-func (c *Client) Upload(path string, fileData *os.File) (*http.Response, error) {
-	body, bodyWriter := io.Pipe()
-	writer := multipart.NewWriter(bodyWriter)
-
-	go func() {
-		formFile, err := writer.CreateFormFile("file", fileData.Name())
-		if err != nil {
-			bodyWriter.CloseWithError(err)
-			return
-		}
-
-		if _, err := io.Copy(formFile, fileData); err != nil {
-			bodyWriter.CloseWithError(err)
-			return
-		}
-
-		bodyWriter.CloseWithError(writer.Close())
-	}()
-
-	req, err := c.newRequest("POST", path, body)
-	if err != nil {
-		return nil, err
-	}
-
-	req.Header.Set("Content-Type", writer.FormDataContentType())
-
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
 }
