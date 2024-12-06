@@ -13,11 +13,11 @@ import (
 type VersionClient client
 
 type VersionInfo struct {
-	Version string `json:"version"`
+	Version string `json:"latest"`
 }
 
 type VersionInfoResponse struct {
-	Version VersionInfo `json:"version"`
+	Version VersionInfo `json:"latest"`
 }
 
 func (u *VersionClient) getLatestRelease() (VersionInfo, error) {
@@ -41,7 +41,7 @@ func (u *VersionClient) getLatestRelease() (VersionInfo, error) {
 }
 
 func (u *VersionClient) Update() error {
-	command := exec.Command("sh", "-c", "curl -sSfL \"https://get.scrolls.sh/install.sh\" | sh")
+	command := exec.Command("sh", "-c", "curl -sSfL \"https://cdn.scrolls.sh/releases/install.sh\" | sh")
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 

@@ -27,7 +27,7 @@ type client struct {
 }
 
 func New() (*Client, error) {
-	b, _ := url.Parse("https://api.scrolls.sh")
+	b, _ := url.Parse("https://cdn.scrolls.sh")
 
 	sc := &Client{
 		baseUrl: b,
