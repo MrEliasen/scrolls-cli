@@ -12,7 +12,8 @@ import (
 )
 
 type selectionResult struct {
-	value string
+	value  string
+	cancel bool
 }
 
 type model struct {
@@ -41,15 +42,21 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case "ctrl+c":
+			m.selection.cancel = true
 			return m, tea.Quit
 
 		case "enter":
-			if m.table.Focused() {
-				s := m.table.SelectedRow()
-				if len(s) > 0 {
-					m.selection.value = s[0]
-					return m, tea.Quit
-				}
+			s := m.table.SelectedRow()
+			if len(s) > 0 {
+				m.selection.value = s[0]
+				return m, tea.Quit
+			}
+
+			r := m.table.Rows()
+			if len(r) == 1 {
+				m.table.SetCursor(0)
+				m.selection.value = r[0][0]
+				return m, tea.Quit
 			}
 		}
 	}
@@ -86,15 +93,14 @@ func (m model) View() string {
 		"Select the type associated with your scroll" +
 		"\n" +
 		m.input.View() +
+		helpTextStyle.Render("\n  Enter:  Choose selection & save\n  TAB:    Switch between search and list\n  ↑↓/kj:  Move up/down the list\n  CTRL+C: Exit without selection") +
 		"\n" +
 		baseStyle.Render(
 			m.table.View(),
-		) + helpTextStyle.Render(
-		"\n  ↑↓/kj:  Move up/down the list\n  Enter:  Choose selection & save\n  TAB:    Switch between search and list\n  CTRL+C: Exit without selection",
-	)
+		)
 }
 
-func NewSelector(initial string) string {
+func NewSelector(initial string) (string, bool) {
 	columns := []table.Column{
 		{Title: "File Type", Width: 25},
 	}
@@ -104,10 +110,11 @@ func NewSelector(initial string) string {
 	i := 0
 	tSelection := -1
 	for bin := range file_handler.ExecList {
-		rows = append(rows, table.Row{bin})
-
 		if initial == bin {
-			tSelection = i
+			rows = append([]table.Row{{bin}}, rows...)
+			tSelection = 0
+		} else {
+			rows = append(rows, table.Row{bin})
 		}
 		i++
 	}
@@ -144,14 +151,15 @@ func NewSelector(initial string) string {
 	t.SetStyles(s)
 
 	selection := &selectionResult{
-		value: initial,
+		cancel: false,
+		value:  initial,
 	}
 	m := model{t, search, rows, selection}
 
-	if _, err := tea.NewProgram(m).Run(); err != nil {
+	if _, err := tea.NewProgram(m, tea.WithAltScreen()).Run(); err != nil {
 		fmt.Println("Error running program:", err)
-		return ""
+		return "", true
 	}
 
-	return selection.value
+	return selection.value, selection.cancel
 }

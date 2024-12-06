@@ -50,7 +50,10 @@ func (c *FileClient) NewScroll(name string) {
 		panic(err)
 	}
 
-	fType := tui.NewSelector("")
+	fType, cancel := tui.NewSelector("")
+	if cancel {
+		return
+	}
 	ex := file_handler.ExecList[fType]
 
 	f := file_handler.New(fmt.Sprintf("%s/%s%s", path, name, ex.Ext))
@@ -129,7 +132,7 @@ func (c *FileClient) EditScroll(name string) {
 	// delete tmp
 	tmp_file.Delete()
 
-	f.Type = tui.NewSelector(f.Type)
+	f.Type, _ = tui.NewSelector(f.Type)
 
 	// write to original
 	f.Save(false)
