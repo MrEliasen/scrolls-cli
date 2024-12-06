@@ -74,6 +74,7 @@ func (c *FileClient) NewScroll(name string, useTemplate bool) {
 	log.Printf("opening in: %s, waiting to editor to close before proceeding..\n", c.client.settings.GetEditor())
 	err = cmd.Run()
 	if err != nil {
+		f.Delete()
 		log.Fatalf("editor error: %s", err.Error())
 		return
 	}
