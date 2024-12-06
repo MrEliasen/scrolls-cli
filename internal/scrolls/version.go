@@ -3,7 +3,10 @@ package scrolls
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"os/exec"
 
+	semver "github.com/hashicorp/go-version"
 	"github.com/mreliasen/scrolls-cli/internal/utils"
 )
 
@@ -17,8 +20,8 @@ type VersionInfoResponse struct {
 	Version VersionInfo `json:"version"`
 }
 
-func (u *VersionClient) GetLatestRelease() (VersionInfo, error) {
-	res, err := u.client.Get("/releases/latest", nil)
+func (u *VersionClient) getLatestRelease() (VersionInfo, error) {
+	res, err := u.client.Get("/releases/latest.json", nil)
 	if err != nil {
 		return VersionInfo{}, fmt.Errorf("failed to get release version info: %s", err)
 	}
@@ -37,37 +40,48 @@ func (u *VersionClient) GetLatestRelease() (VersionInfo, error) {
 	return data, nil
 }
 
+func (u *VersionClient) Update() error {
+	command := exec.Command("sh", "-c", "curl -sSfL \"https://get.scrolls.sh/install.sh\" | sh")
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+
+	err := command.Run()
+	if err != nil {
+		return fmt.Errorf("failed to execute update command: %w", err)
+	}
+
+	return nil
+}
+
 func (u *VersionClient) CheckForUpdates() {
-	/* if u.client.settings.GetAutoupdate() == "on" && time.Now().Unix() >= u.client.settings.GetLastUpdateCheck()+int64(24*60*60) {
-		latest, err := fetchLatestVersion()
+	latest, err := u.getLatestRelease()
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error fetching latest version:", err)
+		return
+	}
+
+	parsedVersion, err := semver.NewVersion(utils.Version)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, "Error parsing current version:", err)
+		return
+	}
+
+	parsedLatest, err := semver.NewVersion(latest.Version)
+	if err != nil {
+		_, _ = fmt.Fprintln(os.Stderr, "Error parsing latest version:", err)
+		return
+	}
+
+	if parsedVersion.LessThan(parsedLatest) {
+		fmt.Println("Updating to the latest version")
+
+		err := u.Update()
 		if err != nil {
-			fmt.Fprintln(os.Stderr, "Error fetching latest version:", err)
-			return
+			_, _ = fmt.Fprintln(os.Stderr, "Error updating:", err)
 		}
 
-		parsedVersion, err := semver.NewVersion(GetCurrentVersion())
-		if err != nil {
-			fmt.Fprintln(os.Stderr, "Error parsing current version:", err)
-			return
-		}
+		return
+	}
 
-		parsedLatest, err := semver.NewVersion(latest)
-		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, "Error parsing latest version:", err)
-			return
-		}
-
-		if parsedVersion.LessThan(parsedLatest) {
-			fmt.Println("Updating to the latest version")
-
-			err := Update()
-			if err != nil {
-				_, _ = fmt.Fprintln(os.Stderr, "Error updating:", err)
-			}
-
-			fmt.Printf("\nYou can disable automatic updates with %s\n", "scrolls config set autoupdate off")
-		}
-		u.client.settings.SetLastUpdateCheck(time.Now().Unix())
-		u.client.settings.PersistChanges()
-	} */
+	fmt.Printf("version %s is already latest\n", utils.Version)
 }
