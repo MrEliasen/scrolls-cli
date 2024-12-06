@@ -39,7 +39,7 @@ func (c *FileClient) GetScroll(name string) *file_handler.FileHandler {
 	return f
 }
 
-func (c *FileClient) NewScroll(name string) {
+func (c *FileClient) NewScroll(name string, useTemplate bool) {
 	path, err := storagePath()
 	if err != nil {
 		panic(err)
@@ -61,12 +61,17 @@ func (c *FileClient) NewScroll(name string) {
 	f.Name = name
 	f.Type = fType
 
+	if useTemplate {
+		os.WriteFile(f.Path(), []byte(ex.Template), 0o644)
+	}
+
 	editor := c.client.settings.GetEditor()
 	cmd := exec.Command(editor, f.Path())
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
+	log.Printf("opening in: %s, waiting to editor to close before proceeding..\n", c.client.settings.GetEditor())
 	err = cmd.Run()
 	if err != nil {
 		log.Fatalf("editor error: %s", err.Error())

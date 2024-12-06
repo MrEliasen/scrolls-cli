@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/mreliasen/scrolls-cli/internal/flags"
 	"github.com/mreliasen/scrolls-cli/internal/scrolls"
 	"github.com/spf13/cobra"
 )
@@ -20,10 +21,11 @@ var writeCmd = &cobra.Command{
 			return
 		}
 
-		c.Files.NewScroll(name)
+		c.Files.NewScroll(name, flags.Template())
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(writeCmd)
+	flags.AddTemplateFlag(writeCmd)
 }
