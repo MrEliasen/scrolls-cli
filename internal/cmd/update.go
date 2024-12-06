@@ -13,7 +13,7 @@ func init() {
 
 var updateCmd = &cobra.Command{
 	Use:   "update",
-	Short: "Update the Scrolls CLI to the latest version",
+	Short: "Update the Scrolls CLI to the latest version, if an update is available",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		c, err := scrolls.New()

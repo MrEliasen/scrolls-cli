@@ -10,7 +10,7 @@ import (
 
 var writeCmd = &cobra.Command{
 	Use:   "write <name>",
-	Short: "write/create a new scroll by the given name.",
+	Short: "Create a new scroll, with the given name.",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]

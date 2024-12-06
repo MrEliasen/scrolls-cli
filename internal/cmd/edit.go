@@ -9,7 +9,7 @@ import (
 
 var editorCmd = &cobra.Command{
 	Use:   "edit <name>",
-	Short: "edit a scroll.",
+	Short: "Edit a scroll.",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]

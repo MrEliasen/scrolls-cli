@@ -17,7 +17,7 @@ type FileClient client
 func storagePath() (string, error) {
 	p, err := settings.LoadSettings()
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	lib := p.GetLibrary()
@@ -25,34 +25,34 @@ func storagePath() (string, error) {
 	return lib, nil
 }
 
-func (c *FileClient) GetScroll(name string) *file_handler.FileHandler {
+func (c *FileClient) GetScroll(name string) (*file_handler.FileHandler, error) {
 	path, err := storagePath()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	f := file_handler.New(fmt.Sprintf("%s/%s", path, name))
 	if err := f.Load(); err != nil {
-		panic(err)
+		return nil, err
 	}
 
-	return f
+	return f, nil
 }
 
-func (c *FileClient) NewScroll(name string, useTemplate bool) {
+func (c *FileClient) NewScroll(name string, useTemplate bool) error {
 	path, err := storagePath()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	uuid, err := uuid.NewUUID()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	fType, cancel := tui.NewSelector("")
 	if cancel {
-		return
+		return nil
 	}
 	ex := file_handler.ExecList[fType]
 
@@ -75,35 +75,34 @@ func (c *FileClient) NewScroll(name string, useTemplate bool) {
 	err = cmd.Run()
 	if err != nil {
 		f.Delete()
-		log.Fatalf("editor error: %s", err.Error())
-		return
+		return fmt.Errorf("editor error: %s", err.Error())
 	}
 
 	f.WriteHeader()
 	os.Rename(f.Path(), fmt.Sprintf("%s/%s", path, name))
+
+	return nil
 }
 
-func (c *FileClient) EditScroll(name string) {
+func (c *FileClient) EditScroll(name string) error {
 	path, err := storagePath()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	f := file_handler.New(fmt.Sprintf("%s/%s", path, name))
 	if !f.Exists() {
-		log.Fatalf("no scroll with name \"%s\" found.", name)
-		return
+		return fmt.Errorf("no scroll with name \"%s\" found.", name)
 	}
 
 	if err := f.Load(); err != nil {
-		panic(err)
+		return err
 	}
 
 	tmp_file := f.MakeTempFile(f.GetExec().Exec.Ext)
 	createdAt, err := os.Stat(tmp_file.Path())
 	if err != nil {
-		log.Fatalln("failed to prepare scroll for editing")
-		return
+		return fmt.Errorf("failed to prepare scroll for editing")
 	}
 
 	editor := c.client.settings.GetEditor()
@@ -114,20 +113,17 @@ func (c *FileClient) EditScroll(name string) {
 
 	err = cmd.Run()
 	if err != nil {
-		log.Fatalf("editor error; %s", err.Error())
-		return
+		return fmt.Errorf("editor error; %s", err.Error())
 	}
 
 	updatedAt, err := os.Stat(tmp_file.Path())
 	if err != nil {
-		log.Fatalln("failed to prepare scroll for editing")
 		tmp_file.Delete()
-		return
+		return fmt.Errorf("failed to prepare scroll for editing, %w", err)
 	}
 
 	if createdAt.ModTime().Unix() == updatedAt.ModTime().Unix() {
-		log.Println("no changes made to scroll")
-		return
+		return nil
 	}
 
 	tmp_file.Load()
@@ -142,12 +138,14 @@ func (c *FileClient) EditScroll(name string) {
 
 	// write to original
 	f.Save(false)
+
+	return nil
 }
 
 func (c *FileClient) PurgeScrolls() error {
 	path, err := storagePath()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	files, err := os.ReadDir(path)
@@ -169,16 +167,39 @@ func (c *FileClient) PurgeScrolls() error {
 	return nil
 }
 
-func (c *FileClient) DeleteScroll(name string) {
+func (c *FileClient) DeleteScroll(name string) error {
 	path, err := storagePath()
+	if err != nil {
+		return err
+	}
+
+	f := file_handler.New(fmt.Sprintf("%s/%s", path, name))
+	if !f.Exists() {
+		return fmt.Errorf("the scroll \"%s\" does not exist or is inaccessible.\n", name)
+	}
+
+	f.Delete()
+	return nil
+}
+
+func (c *FileClient) ListScrolls() error {
+	/* path, err := storagePath()
 	if err != nil {
 		panic(err)
 	}
 
-	f := file_handler.New(fmt.Sprintf("%s/%s", path, name))
-	if err := f.Load(); err != nil {
-		panic(err)
+	files, err := os.ReadDir(path)
+	if err != nil {
+		return err
 	}
 
-	f.Delete()
+	for _, entry := range files {
+		if entry.IsDir() {
+			continue
+		}
+
+		f := file_handler.New(fmt.Sprintf("%s/%s", path, entry.Name()))
+	} */
+
+	return nil
 }

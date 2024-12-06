@@ -4,13 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mreliasen/scrolls-cli/internal/flags"
 	"github.com/mreliasen/scrolls-cli/internal/scrolls"
 	"github.com/spf13/cobra"
 )
 
 var readCmd = &cobra.Command{
 	Use:   "read <scroll-name>",
-	Short: "writes the scroll's content to stdout",
+	Short: "Writes the scroll's content to stdout",
 	Args:  cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
@@ -21,7 +22,16 @@ var readCmd = &cobra.Command{
 			return
 		}
 
-		s := c.Files.GetScroll(name)
+		s, err := c.Files.GetScroll(name)
+		if err != nil {
+			if flags.Debug() {
+				fmt.Printf("%+v\n", err)
+			}
+
+			fmt.Printf("failed to retrieve scroll.")
+			return
+		}
+
 		if s.Type == "plain-text" {
 			fmt.Printf("unable to cast a plain text scroll")
 			return

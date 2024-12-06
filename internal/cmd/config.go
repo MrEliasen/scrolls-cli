@@ -11,7 +11,7 @@ import (
 
 var configCmd = &cobra.Command{
 	Use:   "config",
-	Short: "manage you scrolls cli config/settings",
+	Short: "Manage you Scrolls CLI config",
 }
 
 var configSetCmd = &cobra.Command{
@@ -36,7 +36,7 @@ func init() {
 
 var getEditorCmd = &cobra.Command{
 	Use:   "editor",
-	Short: "Get the editor which will be used when editing scrolls via cli",
+	Short: "Get the editor which will be used when editing and writing scrolls",
 	Run: func(cmd *cobra.Command, args []string) {
 		settings, err := settings.LoadSettings()
 		if err != nil {
@@ -61,7 +61,7 @@ var getEditorCmd = &cobra.Command{
 
 var setEditorCmd = &cobra.Command{
 	Use:   "editor <name/path>",
-	Short: "Set the editor to use when editing scrolls via cli",
+	Short: "Set the editor to use when editing and writing scrolls",
 	Args:  cobra.ExactArgs(1),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return []string{}, cobra.ShellCompDirectiveDefault
@@ -119,7 +119,7 @@ var GetLibraryCmd = &cobra.Command{
 
 var setLibraryCmd = &cobra.Command{
 	Use:   "library <path>",
-	Short: "Set the path to where you want to store you scrolls. Changing this option will move your current scrolls to the new location.",
+	Short: "Set the path to where you want to store you scrolls. Scrolls will be automatically moved to the new location",
 	Args:  cobra.MaximumNArgs(1),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return []string{}, cobra.ShellCompDirectiveDefault

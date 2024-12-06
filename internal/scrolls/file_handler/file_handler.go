@@ -72,10 +72,10 @@ func (f *FileHandler) Exists() bool {
 	return err == nil
 }
 
-func (f *FileHandler) WriteHeader() {
+func (f *FileHandler) WriteHeader() error {
 	lines, err := f.loadFile()
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("failed to load scrolls, %w", err)
 	}
 
 	payload := []byte(f.generateFileHeader())
@@ -84,27 +84,30 @@ func (f *FileHandler) WriteHeader() {
 
 	err = os.WriteFile(f.path, payload, 0o644)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("failed to save scroll, %w", err)
 	}
 
 	if flags.Debug() {
 		fmt.Printf("wrote scroll %s, with %d bytes\n", f.path, len(payload))
 	}
+
+	return nil
 }
 
-func (f *FileHandler) Delete() {
+func (f *FileHandler) Delete() error {
 	err := os.Remove(f.path)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "failed to delete scroll: %s\n", f.path)
-		return
+		return fmt.Errorf("failed to delete scroll \"%s\", %w\n", f.path, err)
 	}
 
 	if flags.Debug() {
-		fmt.Printf("deleted scrolls: %s\n", f.path)
+		fmt.Printf("deleted scroll: %s\n", f.path)
 	}
+
+	return nil
 }
 
-func (f *FileHandler) Save(skipHeader bool) {
+func (f *FileHandler) Save(skipHeader bool) error {
 	header := ""
 	if !skipHeader {
 		header = f.generateFileHeader() + "\n"
@@ -119,12 +122,14 @@ func (f *FileHandler) Save(skipHeader bool) {
 
 	err := os.WriteFile(f.path, payload, 0o644)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("failed to save scroll: %w", err)
 	}
 
 	if flags.Debug() {
 		fmt.Printf("wrote scroll: %s, with %d bytes\n", f.path, len(payload))
 	}
+
+	return nil
 }
 
 func (f *FileHandler) generateFileHeader() string {
@@ -165,7 +170,7 @@ func (f *FileHandler) loadFile() (lines []string, error error) {
 func (f *FileHandler) Load() error {
 	lines, err := f.loadFile()
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("failed to load scroll, %w", err)
 	}
 
 	f.parse(lines)
