@@ -65,8 +65,6 @@ var castCmd = &cobra.Command{
 		if err != nil {
 			log.Fatalf("Error casting scroll: %s", err.Error())
 		}
-
-		tmp.Delete()
 	},
 }
 
@@ -100,7 +98,13 @@ func castInline(s *file_handler.FileHandler, ex *file_handler.ExecCommand) error
 }
 
 func castFile(s *file_handler.FileHandler, ex *file_handler.ExecCommand) error {
-	scroll := exec.Command(ex.Exec.Bin, s.Path())
+	args := []string{s.Path()}
+
+	if ex.Exec.AlwaysUseArgs {
+		args = append(ex.Exec.Args, s.Path())
+	}
+
+	scroll := exec.Command(ex.Exec.Bin, args...)
 	scroll.Stdout = os.Stdout
 	scroll.Stderr = os.Stderr
 
