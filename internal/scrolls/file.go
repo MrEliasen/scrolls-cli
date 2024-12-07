@@ -180,24 +180,32 @@ func (c *FileClient) DeleteScroll(name string) error {
 	return nil
 }
 
-func (c *FileClient) ListScrolls() error {
-	/* path, err := storagePath()
+func (c *FileClient) ListScrolls(ofType string) ([]*file_handler.FileHandler, error) {
+	path, err := storagePath()
 	if err != nil {
 		panic(err)
 	}
 
 	files, err := os.ReadDir(path)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	results := []*file_handler.FileHandler{}
 	for _, entry := range files {
 		if entry.IsDir() {
 			continue
 		}
 
 		f := file_handler.New(fmt.Sprintf("%s/%s", path, entry.Name()))
-	} */
+		f.Load()
 
-	return nil
+		if ofType != "all" && f.Type != ofType {
+			continue
+		}
+
+		results = append(results, f)
+	}
+
+	return results, nil
 }
