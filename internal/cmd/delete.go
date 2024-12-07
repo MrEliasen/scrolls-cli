@@ -10,9 +10,10 @@ import (
 )
 
 var deleteCmd = &cobra.Command{
-	Use:   "delete <name>",
-	Short: "Delete a scroll.",
-	Args:  cobra.ExactArgs(1),
+	Use:               "delete <name>",
+	Short:             "Delete a scroll.",
+	Args:              cobra.ExactArgs(1),
+	ValidArgsFunction: ValidScrollName,
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 

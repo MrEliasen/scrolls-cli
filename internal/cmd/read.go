@@ -10,9 +10,10 @@ import (
 )
 
 var readCmd = &cobra.Command{
-	Use:   "read <scroll-name>",
-	Short: "Writes the scroll's content to stdout",
-	Args:  cobra.ExactArgs(1),
+	Use:               "read <scroll-name>",
+	Short:             "Writes the scroll's content to stdout",
+	Args:              cobra.ExactArgs(1),
+	ValidArgsFunction: ValidScrollName,
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
 
