@@ -4,10 +4,12 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"time"
 
 	"github.com/mreliasen/scrolls-cli/internal/flags"
+	"github.com/mreliasen/scrolls-cli/internal/settings"
 )
 
 const headerEndIndicator = "---SCROLL META END---"
@@ -53,7 +55,19 @@ func (f *FileHandler) MakeTempFile(ext string) *FileHandler {
 		return nil
 	}
 
-	tmp := New(fmt.Sprintf("%s_tmp_%d%s", f.path, time.Now().UnixMilli(), ext))
+	configDir, err := settings.GetConfigDir()
+	if err != nil {
+		return nil
+	}
+
+	tmp_path := path.Join(configDir, "/tmp")
+	err = os.MkdirAll(tmp_path, 0o755)
+	if err != nil {
+		return nil
+	}
+
+	tmp_path = path.Join(tmp_path, f.Name)
+	tmp := New(fmt.Sprintf("%s_%d%s", tmp_path, time.Now().UnixMilli(), ext))
 	tmp.Lines = f.Lines
 	tmp.Save(true)
 	return tmp

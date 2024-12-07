@@ -65,13 +65,13 @@ func (c *FileClient) NewScroll(name string, useTemplate bool) error {
 		os.WriteFile(f.Path(), []byte(ex.Template), 0o644)
 	}
 
-	editor := c.client.settings.GetEditor()
+	editor := c.client.Settings.GetEditor()
 	cmd := exec.Command(editor, f.Path())
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	log.Printf("opening in: %s, waiting to editor to close before proceeding..\n", c.client.settings.GetEditor())
+	log.Printf("opening in: %s, waiting to editor to close before proceeding..\n", c.client.Settings.GetEditor())
 	err = cmd.Run()
 	if err != nil {
 		f.Delete()
@@ -105,7 +105,7 @@ func (c *FileClient) EditScroll(name string) error {
 		return fmt.Errorf("failed to prepare scroll for editing")
 	}
 
-	editor := c.client.settings.GetEditor()
+	editor := c.client.Settings.GetEditor()
 	cmd := exec.Command(editor, tmp_file.Path())
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
@@ -133,8 +133,6 @@ func (c *FileClient) EditScroll(name string) error {
 
 	// delete tmp
 	tmp_file.Delete()
-
-	f.Type, _ = tui.NewSelector(f.Type)
 
 	// write to original
 	f.Save(false)

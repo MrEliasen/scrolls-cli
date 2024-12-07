@@ -15,7 +15,7 @@ type Client struct {
 	baseUrl  *url.URL
 	token    string
 	version  string
-	settings *settings.Settings
+	Settings *settings.Settings
 	base     *client
 
 	Files   *FileClient
@@ -44,7 +44,7 @@ func New() (*Client, error) {
 		return nil, fmt.Errorf("Error reading settings file: %w", err)
 	}
 
-	sc.settings = configSettings
+	sc.Settings = configSettings
 
 	return sc, nil
 }
