@@ -1,10 +1,12 @@
 package scrolls
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/mreliasen/scrolls-cli/internal/scrolls/file_handler"
@@ -39,7 +41,7 @@ func (c *FileClient) GetScroll(name string) (*file_handler.FileHandler, error) {
 	return f, nil
 }
 
-func (c *FileClient) NewScroll(name string, useTemplate bool) error {
+func (c *FileClient) NewScroll(name string, useTemplate bool, fromFile string) error {
 	path, err := storagePath()
 	if err != nil {
 		return err
@@ -50,10 +52,22 @@ func (c *FileClient) NewScroll(name string, useTemplate bool) error {
 		return err
 	}
 
+
+	templateContent := []byte{}
+	if fromFile != "" {
+		ffbyte, err := os.ReadFile(fromFile)
+		if err != nil {
+			return errors.New("failed to read the content of \"%s\"; is the path correct?")
+		}
+
+		templateContent = ffbyte
+	}
+
 	fType, cancel := tui.NewSelector("")
 	if cancel {
 		return nil
 	}
+
 	ex := file_handler.ExecList[fType]
 
 	f := file_handler.NewFromFile(fmt.Sprintf("%s/%s%s", path, strings.ToLower(name), ex.Ext))
@@ -61,8 +75,12 @@ func (c *FileClient) NewScroll(name string, useTemplate bool) error {
 	f.Name = name
 	f.Type = fType
 
-	if useTemplate {
-		os.WriteFile(f.Path(), []byte(ex.Template), 0o644)
+	if len(templateContent) == 0 && useTemplate {
+		templateContent = []byte(ex.Template)
+	}
+
+	if len(templateContent) > 0 {
+		os.WriteFile(f.Path(), templateContent, 0o644)
 	}
 
 	editor := c.client.Settings.GetEditor()

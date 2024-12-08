@@ -21,11 +21,12 @@ var writeCmd = &cobra.Command{
 			return
 		}
 
-		c.Files.NewScroll(name, flags.Template())
+		c.Files.NewScroll(name, flags.Template(), flags.FromFile())
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(writeCmd)
 	flags.AddTemplateFlag(writeCmd)
+	flags.AddFromFileFlag(writeCmd)
 }
