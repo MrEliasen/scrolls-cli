@@ -31,7 +31,7 @@ func (c *FileClient) GetScroll(name string) (*file_handler.FileHandler, error) {
 		return nil, err
 	}
 
-	f := file_handler.New(fmt.Sprintf("%s/%s", path, name))
+	f := file_handler.New(path, name)
 	if err := f.Load(); err != nil {
 		return nil, err
 	}
@@ -56,7 +56,7 @@ func (c *FileClient) NewScroll(name string, useTemplate bool) error {
 	}
 	ex := file_handler.ExecList[fType]
 
-	f := file_handler.New(fmt.Sprintf("%s/%s%s", path, name, ex.Ext))
+	f := file_handler.NewFromFile(fmt.Sprintf("%s/%s%s", path, strings.ToLower(name), ex.Ext))
 	f.Id = uuid.String()
 	f.Name = name
 	f.Type = fType
@@ -90,7 +90,7 @@ func (c *FileClient) EditScroll(name string) error {
 		return err
 	}
 
-	f := file_handler.New(fmt.Sprintf("%s/%s", path, name))
+	f := file_handler.New(path, name)
 	if !f.Exists() {
 		return fmt.Errorf("no scroll with name \"%s\" found.", name)
 	}
@@ -171,7 +171,7 @@ func (c *FileClient) DeleteScroll(name string) error {
 		return err
 	}
 
-	f := file_handler.New(fmt.Sprintf("%s/%s", path, name))
+	f := file_handler.New(path, name)
 	if !f.Exists() {
 		return fmt.Errorf("the scroll \"%s\" does not exist or is inaccessible.\n", name)
 	}
@@ -197,7 +197,7 @@ func (c *FileClient) ListScrolls(ofType string) ([]*file_handler.FileHandler, er
 			continue
 		}
 
-		f := file_handler.New(fmt.Sprintf("%s/%s", path, entry.Name()))
+		f := file_handler.New(path, entry.Name())
 		f.Load()
 
 		if ofType != "all" && f.Type != ofType {

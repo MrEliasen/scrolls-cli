@@ -14,7 +14,20 @@ import (
 
 const headerEndIndicator = "---SCROLL META END---"
 
-func New(file_path string) *FileHandler {
+func New(file_path, file_name string) *FileHandler {
+	f := &FileHandler{
+		Id:    "",
+		Name:  "",
+		Type:  "",
+		Tags:  []string{},
+		Lines: []string{},
+		path:  path.Join(file_path, strings.ToLower(file_name)),
+	}
+
+	return f
+}
+
+func NewFromFile(file_path string) *FileHandler {
 	f := &FileHandler{
 		Id:    "",
 		Name:  "",
@@ -67,7 +80,7 @@ func (f *FileHandler) MakeTempFile(ext string) *FileHandler {
 	}
 
 	tmp_path = path.Join(tmp_path, f.Name)
-	tmp := New(fmt.Sprintf("%s_%d%s", tmp_path, time.Now().UnixMilli(), ext))
+	tmp := NewFromFile(fmt.Sprintf("%s_%d%s", tmp_path, time.Now().UnixMilli(), ext))
 	tmp.Lines = f.Lines
 	tmp.Save(true)
 	return tmp
