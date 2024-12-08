@@ -52,6 +52,13 @@ func (c *FileClient) NewScroll(name string, useTemplate bool, fromFile string) e
 		return err
 	}
 
+	existing := file_handler.New(path, name)
+	if existing.Exists() {
+		ok := tui.NewConfirm(fmt.Sprintf("A scroll already exists with the name %s, overwrite?", name))
+		if !ok {
+			return nil
+		}
+	}
 
 	templateContent := []byte{}
 	if fromFile != "" {
