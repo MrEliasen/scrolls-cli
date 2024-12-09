@@ -18,6 +18,11 @@ var (
 	mu       sync.Mutex
 )
 
+type Settings struct {
+	changed bool
+	state   *State
+}
+
 func GetConfigDir() (string, error) {
 	configPath := configdir.LocalConfig("scrolls")
 
@@ -34,10 +39,6 @@ func GetConfigDir() (string, error) {
 	return configPath, nil
 }
 
-type Settings struct {
-	changed bool
-}
-
 func LoadSettings() (*Settings, error) {
 	mu.Lock()
 	defer mu.Unlock()
@@ -51,7 +52,9 @@ func LoadSettings() (*Settings, error) {
 		return nil, err
 	}
 
-	settings = &Settings{}
+	settings = &Settings{
+		state: NewScrollsState(),
+	}
 	viper.BindEnv("config-path", "SCROLLS_CLI_CONFIG_DIR")
 	viper.SetConfigName("settings")
 	viper.SetConfigType("json")
@@ -85,10 +88,17 @@ func LoadSettings() (*Settings, error) {
 		}
 	}
 
+	err = settings.state.Load()
+	if err != nil {
+		return nil, err
+	}
+
 	return settings, nil
 }
 
 func (s *Settings) PersistChanges() {
+	s.state.PersistChanges()
+
 	if settings == nil || !settings.changed {
 		return
 	}
