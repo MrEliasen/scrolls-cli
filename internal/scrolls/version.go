@@ -32,7 +32,7 @@ func (u *VersionClient) getLatestRelease() (VersionInfo, error) {
 		return VersionInfo{}, fmt.Errorf("failed to get release version info: %s", err)
 	}
 
-	data, err := utils.Unmarshal[VersionInfo](res)
+	data, err := utils.UnmarshalResp[VersionInfo](res)
 	if err != nil {
 		return VersionInfo{}, fmt.Errorf("failed to deserialise response: %w", err)
 	}

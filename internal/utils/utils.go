@@ -1,20 +1,31 @@
 package utils
 
 import (
+	"bytes"
 	"encoding/json"
 	"io"
 	"net/http"
 )
 
-func Unmarshal[T any](r *http.Response) (T, error) {
-	t := new(T)
-
+func UnmarshalResp[T any](r *http.Response) (T, error) {
 	p, err := io.ReadAll(r.Body)
 	if err != nil {
-		return *t, err
+		return *new(T), err
 	}
 
-	err = json.Unmarshal(p, &t)
+	return Unmarshal[T](p)
+}
 
-	return *t, nil
+func Unmarshal[T any](p []byte) (T, error) {
+	t := new(T)
+
+	err := json.Unmarshal(p, &t)
+
+	return *t, err
+}
+
+func Marshal(data interface{}) ([]byte, error) {
+	buf := &bytes.Buffer{}
+	err := json.NewEncoder(buf).Encode(data)
+	return buf.Bytes(), err
 }
