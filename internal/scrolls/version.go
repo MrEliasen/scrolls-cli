@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"time"
 
 	semver "github.com/hashicorp/go-version"
 	"github.com/mreliasen/scrolls-cli/internal/utils"
@@ -53,35 +54,41 @@ func (u *VersionClient) Update() error {
 	return nil
 }
 
-func (u *VersionClient) CheckForUpdates() {
+func (u *VersionClient) CheckForUpdates(autoUpdate bool) (currentVersion, latestVersion string, updateAvailable bool, updateError error) {
 	latest, err := u.getLatestRelease()
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error fetching latest version:", err)
-		return
+		return "", "", false, fmt.Errorf("Error fetching latest version: %w", err)
 	}
 
 	parsedVersion, err := semver.NewVersion(utils.Version)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Error parsing current version:", err)
-		return
+		return "", "", false, fmt.Errorf("Error parsing current version: %w", err)
 	}
 
 	parsedLatest, err := semver.NewVersion(latest.Version)
 	if err != nil {
-		_, _ = fmt.Fprintln(os.Stderr, "Error parsing latest version:", err)
-		return
+		return "", "", false, fmt.Errorf("Error parsing latest version: %w", err)
 	}
 
-	if parsedVersion.LessThan(parsedLatest) {
-		fmt.Println("Updating to the latest version")
+	currentVersion = parsedVersion.String()
+	latestVersion = parsedLatest.String()
+	updateAvailable = parsedVersion.LessThan(parsedLatest)
 
-		err := u.Update()
-		if err != nil {
-			_, _ = fmt.Fprintln(os.Stderr, "Error updating:", err)
+	u.client.Settings.SetLastUpdateCheck(time.Now().Unix())
+	u.client.Settings.PersistChanges()
+
+	if autoUpdate {
+		if updateAvailable {
+			fmt.Println("Updating to the latest version")
+
+			err := u.Update()
+			if err != nil {
+				_, _ = fmt.Fprintln(os.Stderr, "Error updating:", err)
+			}
+		} else {
+			fmt.Printf("version %s is already latest\n", utils.Version)
 		}
-
-		return
 	}
 
-	fmt.Printf("version %s is already latest\n", utils.Version)
+	return currentVersion, latestVersion, updateAvailable, nil
 }
