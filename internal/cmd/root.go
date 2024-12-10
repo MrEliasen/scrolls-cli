@@ -34,7 +34,7 @@ func init() {
 			return
 		}
 
-		if config.GetAutoupdate() && time.Now().Unix() >= config.GetLastUpdateCheck()+int64(12*60*60) {
+		if time.Now().Unix() >= config.GetLastUpdateCheck()+int64(12*60*60) {
 			return
 		}
 
