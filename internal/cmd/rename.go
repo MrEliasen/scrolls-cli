@@ -10,6 +10,7 @@ import (
 var renameCmd = &cobra.Command{
 	Use:               "rename <name> <new-name>",
 	Short:             "Renames a scroll.",
+	Aliases:           []string{"mv"},
 	Args:              cobra.ExactArgs(2),
 	ValidArgsFunction: ValidScrollName,
 	Run: func(cmd *cobra.Command, args []string) {

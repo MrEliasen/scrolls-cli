@@ -16,8 +16,9 @@ import (
 // flags for type
 
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "Show a list of all scroll",
+	Use:     "list",
+	Short:   "Show a list of all scroll",
+	Aliases: []string{"ls"},
 	Run: func(cmd *cobra.Command, args []string) {
 		c, err := scrolls.New()
 		if err != nil {

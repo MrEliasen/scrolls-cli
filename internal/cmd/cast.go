@@ -17,6 +17,7 @@ var castCmd = &cobra.Command{
 	Use:               "cast <scroll name>",
 	Short:             "Run/Execute the scroll.",
 	Args:              cobra.ExactArgs(1),
+	Aliases:           []string{"run", "exec"},
 	ValidArgsFunction: ValidScrollName,
 	Run: func(cmd *cobra.Command, args []string) {
 		name := args[0]
