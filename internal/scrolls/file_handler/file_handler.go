@@ -134,6 +134,21 @@ func (f *FileHandler) Delete() error {
 	return nil
 }
 
+func (f *FileHandler) Rename(new_name string) error {
+	scrollsDir := path.Dir(f.path)
+	f.Name = new_name
+	newPath := path.Join(scrollsDir, new_name)
+
+	err := os.Rename(f.path, newPath)
+	if err != nil {
+		return err
+	}
+
+	f.path = newPath
+	f.Save(false)
+	return nil
+}
+
 func (f *FileHandler) Save(skipHeader bool) error {
 	header := ""
 	if !skipHeader {

@@ -234,3 +234,17 @@ func (c *FileClient) ListScrolls(ofType string) ([]*file_handler.FileHandler, er
 
 	return results, nil
 }
+
+func (c *FileClient) Rename(current_name, new_name string) error {
+	s, err := c.GetScroll(current_name)
+	if err != nil {
+		return err
+	}
+
+	n, err := c.GetScroll(new_name)
+	if n != nil {
+		return fmt.Errorf("cannot rename '%s' to '%s', a scroll already exists with the new name", current_name, new_name)
+	}
+
+	return s.Rename(new_name)
+}
