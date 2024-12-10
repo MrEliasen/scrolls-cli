@@ -10,7 +10,7 @@ var helpTextStyle = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("#eaeaea"))
 
 var (
-	HighlightStyle = lipgloss.Color("#8454fc")
-	ErrorStyle     = lipgloss.Color("#ff4e94")
-	SuccessStyle   = lipgloss.Color("#9bf3af")
+	HighlightStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#8454fc"))
+	ErrorStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("#ff4e94"))
+	SuccessStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("#9bf3af"))
 )
