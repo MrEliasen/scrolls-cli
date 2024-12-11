@@ -46,7 +46,7 @@ var getEditorCmd = &cobra.Command{
 
 		e := settings.GetEditor()
 		if e == "" {
-			fmt.Printf("no editor set, using %s as default", e)
+			fmt.Printf("no editor set, using %s as default\n", e)
 			return
 		}
 
@@ -109,7 +109,7 @@ var GetLibraryCmd = &cobra.Command{
 
 		e := settings.GetLibrary()
 		if e == "" {
-			fmt.Printf("no library set, using default location %s", e)
+			fmt.Printf("no library set, using default location %s\n", e)
 			return
 		}
 

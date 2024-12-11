@@ -24,7 +24,7 @@ var castCmd = &cobra.Command{
 
 		c, err := scrolls.New()
 		if err != nil {
-			fmt.Printf("failed to initiate scroll-cli")
+			fmt.Println("failed to initiate scroll-cli")
 			return
 		}
 
@@ -34,18 +34,18 @@ var castCmd = &cobra.Command{
 				fmt.Printf("%+v\n", err)
 			}
 
-			fmt.Printf("failed to retrieve scroll.")
+			fmt.Println("failed to retrieve scroll.")
 			return
 		}
 
 		if s.Type == "plain-text" {
-			fmt.Printf("unable to cast a plain text scroll")
+			fmt.Println("unable to cast a plain text scroll")
 			return
 		}
 
 		ex := s.GetExec()
 		if ex == nil {
-			fmt.Printf("no type set for this scroll")
+			fmt.Println("no type set for this scroll")
 			return
 		}
 

@@ -94,7 +94,7 @@ func (s *Settings) PersistChanges() {
 	}
 
 	if err := viper.WriteConfig(); err != nil {
-		fmt.Fprintf(os.Stderr, "failed to persist scrolls-cli settings file: %s", err.Error())
+		fmt.Fprintf(os.Stderr, "failed to persist scrolls-cli settings file: %s\n", err.Error())
 	}
 }
 

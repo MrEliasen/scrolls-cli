@@ -23,7 +23,7 @@ var editTextCmd = &cobra.Command{
 
 		c, err := scrolls.New()
 		if err != nil {
-			fmt.Printf("failed to initiate scroll-cli")
+			fmt.Println("failed to initiate scroll-cli")
 			return
 		}
 
@@ -41,13 +41,13 @@ var editTypeCmd = &cobra.Command{
 
 		c, err := scrolls.New()
 		if err != nil {
-			fmt.Printf("failed to initiate scroll-cli")
+			fmt.Println("failed to initiate scroll-cli")
 			return
 		}
 
 		f, err := c.Files.GetScroll(name)
 		if err != nil {
-			fmt.Printf("failed to read scroll.")
+			fmt.Println("failed to read scroll.")
 			return
 		}
 

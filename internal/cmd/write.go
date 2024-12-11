@@ -17,7 +17,7 @@ var writeCmd = &cobra.Command{
 
 		c, err := scrolls.New()
 		if err != nil {
-			fmt.Printf("failed to initiate scroll-cli")
+			fmt.Println("failed to initiate scroll-cli")
 			return
 		}
 

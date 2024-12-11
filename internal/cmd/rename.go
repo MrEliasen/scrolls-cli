@@ -19,7 +19,7 @@ var renameCmd = &cobra.Command{
 
 		c, err := scrolls.New()
 		if err != nil {
-			fmt.Printf("failed to initiate scroll-cli")
+			fmt.Println("failed to initiate scroll-cli")
 			return
 		}
 
@@ -29,7 +29,7 @@ var renameCmd = &cobra.Command{
 			return
 		}
 
-		fmt.Printf("Scroll '%s' renamed to '%s'", name, newName)
+		fmt.Printf("Scroll '%s' renamed to '%s'\n", name, newName)
 	},
 }
 

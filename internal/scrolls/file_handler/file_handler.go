@@ -176,7 +176,7 @@ func (f *FileHandler) Save(skipHeader bool) error {
 
 func (f *FileHandler) generateFileHeader() string {
 	return fmt.Sprintf(
-		"%s\nid: %s\nname: %s\ntype: %s\ntags: %s\n\n%s\n%s",
+		"%s\nid: %s\nname: %s\ntype: %s\ntags: %s\n\n%s\n%s\n",
 		"---",
 		f.Id,
 		f.Name,

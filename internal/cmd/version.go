@@ -12,7 +12,7 @@ var versionCmd = &cobra.Command{
 	Short: "Returns the current installed version of Scrolls",
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("Scrolls CLI %s", utils.Version)
+		fmt.Printf("Scrolls CLI %s\n", utils.Version)
 	},
 }
 
