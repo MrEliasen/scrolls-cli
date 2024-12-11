@@ -42,7 +42,7 @@ func (u *VersionClient) getLatestRelease() (VersionInfo, error) {
 }
 
 func (u *VersionClient) Update() error {
-	command := exec.Command("sh", "-c", "curl -sSfL \"https://cdn.scrolls.sh/releases/install.sh\" | sh")
+	command := exec.Command("sh", "-c", "curl -sSfL \"https://get.scrolls.sh/releases/install.sh\" | sh")
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 
