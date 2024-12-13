@@ -91,7 +91,7 @@ func (f *FileHandler) Path() string {
 }
 
 func (f *FileHandler) Body() string {
-	return strings.Join(f.Lines, "\n")
+	return strings.Join(f.Lines, "\n") + "\n"
 }
 
 func (f *FileHandler) Exists() bool {
