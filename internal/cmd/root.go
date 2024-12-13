@@ -49,9 +49,9 @@ func init() {
 		}
 
 		if update {
-			fmt.Printf("\n\nHeads up! There is a newer version of %s available.\n", tui.HighlightStyle.Render("Turso CLI"))
+			fmt.Printf("\nnHeads up! There is a newer version of %s available.\n", tui.HighlightStyle.Render("Scrolls"))
 			fmt.Printf("You're currently on version %s, the latest available version is %s.\n", tui.HighlightStyle.Render(curr), tui.HighlightStyle.Render(latest))
-			fmt.Printf("To update:\n\n\t%s\n\n", tui.HighlightStyle.Render("scrolls update"))
+			fmt.Printf("To update:\t%s\n\n", tui.HighlightStyle.Render("scrolls update"))
 		}
 	}
 }
