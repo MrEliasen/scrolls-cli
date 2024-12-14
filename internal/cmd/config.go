@@ -113,7 +113,7 @@ var GetLibraryCmd = &cobra.Command{
 			return
 		}
 
-		fmt.Printf("Library location: %s\n", e)
+		fmt.Printf("%s\n", e)
 	},
 }
 
