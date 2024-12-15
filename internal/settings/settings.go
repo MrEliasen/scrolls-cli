@@ -20,7 +20,6 @@ var (
 
 type Settings struct {
 	changed bool
-	state   *State
 }
 
 func GetConfigDir() (string, error) {
@@ -52,9 +51,7 @@ func LoadSettings() (*Settings, error) {
 		return nil, err
 	}
 
-	settings = &Settings{
-		state: NewScrollsState(),
-	}
+	settings = &Settings{}
 	viper.BindEnv("config-path", "SCROLLS_CLI_CONFIG_DIR")
 	viper.SetConfigName("settings")
 	viper.SetConfigType("json")
@@ -88,17 +85,10 @@ func LoadSettings() (*Settings, error) {
 		}
 	}
 
-	err = settings.state.Load()
-	if err != nil {
-		return nil, err
-	}
-
 	return settings, nil
 }
 
 func (s *Settings) PersistChanges() {
-	s.state.PersistChanges()
-
 	if settings == nil || !settings.changed {
 		return
 	}

@@ -1,8 +1,10 @@
 package cmd
 
 import (
+	"fmt"
 	"os"
 
+	"github.com/mreliasen/scrolls-cli/internal/tui"
 	"github.com/spf13/cobra"
 )
 
@@ -24,24 +26,25 @@ See each sub-command's help for details on how to use the generated script.`,
 var setBashCompletionCmd = &cobra.Command{
 	Use:   "bash",
 	Short: "Generate the autocompletion script for the bash shell.",
-	Long: `
+	Long: fmt.Sprintf(`
 Generate the autocompletion script for the bash shell.
 
 This script depends on the 'bash-completion' package.
 If it is not installed already, you can install it via your OS's package manager.
 
 To load completions in your current shell session:
-
 $ source <(scrolls completion bash)
 
 To load completions for every new session, execute once:
-Linux:
+%s:
 $ scrolls completion bash > /etc/bash_completion.d/scrolls
 
-macOS:
+%s:
 $ scrolls completion bash > $(brew --prefix)/etc/bash_completion.d/scrolls
 
 You will need to start a new shell for this setup to take effect.`,
+		tui.HighlightStyle.Render("Linux"),
+		tui.HighlightStyle.Render("macOS")),
 	Run: func(cmd *cobra.Command, args []string) {
 		rootCmd.GenBashCompletion(os.Stdout)
 	},
@@ -68,7 +71,7 @@ You will need to start a new shell for this setup to take effect.`,
 var setZshCompletionCmd = &cobra.Command{
 	Use:   "zsh",
 	Short: "Generate the autocompletion script for the zsh shell.",
-	Long: `
+	Long: fmt.Sprintf(`
 Generate the autocompletion script for the zsh shell.
 
 If shell completion is not already enabled in your environment you will need
@@ -82,13 +85,15 @@ $ source <(scrolls completion zsh)
 
 To load completions for every new session, execute once:
 
-Linux:
+%s:
 $ scrolls completion zsh > "${fpath[1]}/_scrolls"
 
-macOS:
+%s:
 $ scrolls completion zsh > $(brew --prefix)/share/zsh/site-functions/_scrolls
 
 You will need to start a new shell for this setup to take effect.`,
+		tui.HighlightStyle.Render("Linux"),
+		tui.HighlightStyle.Render("macOS")),
 	Run: func(cmd *cobra.Command, args []string) {
 		rootCmd.GenZshCompletion(os.Stdout)
 	},

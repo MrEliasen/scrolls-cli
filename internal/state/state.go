@@ -7,31 +7,43 @@ import (
 	"path/filepath"
 	"sync"
 
+	"github.com/mreliasen/scrolls-cli/internal/settings"
 	"github.com/mreliasen/scrolls-cli/internal/utils"
 )
 
-type scrollsState map[string]string
+var library *Library
 
-func NewScrollsState() *State {
-	return &State{
-		state:   &scrollsState{},
-		changed: false,
+func New() *Library {
+	if library != nil {
+		return library
 	}
+
+	library = &Library{
+		scrolls: map[string]*ScrollMeta{},
+	}
+
+	return library
 }
 
-type State struct {
-	state   *scrollsState
-	changed bool
+type ScrollMeta struct {
+	Id       string
+	Name     string
+	Type     string
+	FileName string
+}
+
+type Library struct {
+	scrolls map[string]*ScrollMeta
 	mu      sync.Mutex
 }
 
-func (s *State) getStateFilePath() (string, error) {
-	configDir, err := GetConfigDir()
+func (s *Library) getStateFilePath() (string, error) {
+	configDir, err := settings.GetConfigDir()
 	if err != nil {
 		return "", err
 	}
 
-	filePath := path.Join(configDir, "scrolls.state")
+	filePath := path.Join(configDir, "library.json")
 
 	if abs, err := filepath.Abs(filePath); err == nil {
 		filePath = abs
@@ -40,17 +52,15 @@ func (s *State) getStateFilePath() (string, error) {
 	return filePath, nil
 }
 
-func (s *State) Load() error {
-	if s.state != nil {
+func (s *Library) Load() error {
+	if s.scrolls != nil {
 		return nil
 	}
 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	s.state = &scrollsState{}
-
-	filePath, err := GetConfigDir()
+	filePath, err := s.getStateFilePath()
 	if err != nil {
 		return err
 	}
@@ -71,7 +81,7 @@ func (s *State) Load() error {
 	return nil
 }
 
-func (c *State) Set(scroll_name, file_name string) {
+func (c *Library) Set(scroll_name, file_name string) {
 	if c.state == nil {
 		c.Load()
 
@@ -83,7 +93,7 @@ func (c *State) Set(scroll_name, file_name string) {
 	(*c.state)[scroll_name] = file_name
 }
 
-func (c *State) Get(scroll_name string) string {
+func (c *Library) Get(scroll_name string) string {
 	if c.state == nil {
 		c.Load()
 
@@ -95,7 +105,7 @@ func (c *State) Get(scroll_name string) string {
 	return (*c.state)[scroll_name]
 }
 
-func (c *State) PersistChanges() {
+func (c *Library) PersistChanges() {
 	if c.state == nil || !c.changed {
 		return
 	}
