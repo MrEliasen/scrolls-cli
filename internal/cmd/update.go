@@ -21,7 +21,7 @@ var updateCmd = &cobra.Command{
 			return fmt.Errorf("failed to initiate scrolls cli: %w", err)
 		}
 
-		c.Version.CheckForUpdates()
+		c.Version.CheckForUpdates(true)
 		return nil
 	},
 }

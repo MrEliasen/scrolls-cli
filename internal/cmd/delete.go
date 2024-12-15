@@ -12,6 +12,7 @@ import (
 var deleteCmd = &cobra.Command{
 	Use:               "delete <name>",
 	Short:             "Delete a scroll.",
+	Aliases:           []string{"rm"},
 	Args:              cobra.ExactArgs(1),
 	ValidArgsFunction: ValidScrollName,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -19,7 +20,7 @@ var deleteCmd = &cobra.Command{
 
 		c, err := scrolls.New()
 		if err != nil {
-			fmt.Printf("failed to initiate scroll-cli")
+			fmt.Println("failed to initiate scroll-cli")
 			return
 		}
 
