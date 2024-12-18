@@ -49,7 +49,7 @@ func (c *StorageClient) List() ([]*library.Scroll, error) {
 	return nil, nil
 }
 
-func (c *StorageClient) New(name string, useTemplate bool, fromFile string) (*FileHandler, error) {
+func (c *StorageClient) New(name string, useTemplate bool, fromFile string) (*library.Scroll, error) {
 	path, err := tmpStoragePath()
 	if err != nil {
 		return nil, err
@@ -94,7 +94,12 @@ func (c *StorageClient) New(name string, useTemplate bool, fromFile string) (*Fi
 		f.Write(templateContent)
 	}
 
-	return c.editFile(f, nil)
+	f, err = c.editFile(f, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return c.client.Library.NewScroll(name, fType, f.Body())
 }
 
 func (c *StorageClient) NewTempFile(scroll *library.Scroll) (*FileHandler, error) {

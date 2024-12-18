@@ -112,7 +112,7 @@ func (l *Library) NewScroll(scroll_name, file_type string, body []byte) (*Scroll
 				body
 			)
 		VALUES (?, ?, ?, ?)`,
-		id.String(), scroll_name, file_type, []byte(body),
+		id.String(), scroll_name, file_type, body,
 	)
 	if err != nil {
 		if flags.Debug() {
@@ -123,6 +123,9 @@ func (l *Library) NewScroll(scroll_name, file_type string, body []byte) (*Scroll
 
 	_, err = res.LastInsertId()
 	if err != nil {
+		if flags.Debug() {
+			fmt.Fprintf(os.Stderr, "%+v", err)
+		}
 		return nil, err
 	}
 
@@ -149,11 +152,16 @@ func (l *Library) Exists(name string) bool {
 			name = ?
 	`, name)
 
-	if flags.Debug() && res.Err() != nil {
-		fmt.Fprintf(os.Stderr, "%+v", res.Err())
+	if res.Err() != nil {
+		if flags.Debug() {
+			fmt.Fprintf(os.Stderr, "%+v", res.Err())
+		}
+		return false
 	}
 
-	return res.Err() == nil
+	id := ""
+	res.Scan(&id)
+	return id != ""
 }
 
 func (l *Library) Update(scroll *Scroll) error {
@@ -222,7 +230,6 @@ func (l *Library) Rename(src, dist string) error {
 			name = ?
 		WHERE
 			name = ?
-		LIMIT 1
 	`, dist, src)
 
 	if flags.Debug() && err != nil {
