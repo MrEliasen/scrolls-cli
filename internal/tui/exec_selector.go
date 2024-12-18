@@ -8,7 +8,7 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/mreliasen/scrolls-cli/internal/scrolls/file_handler"
+	"github.com/mreliasen/scrolls-cli/internal/file_types"
 )
 
 type selectionResult struct {
@@ -109,7 +109,7 @@ func NewSelector(initial string) (string, bool) {
 
 	i := 0
 	tSelection := -1
-	for bin := range file_handler.ExecList {
+	for bin := range file_types.ExecList {
 		if initial == bin {
 			rows = append([]table.Row{{bin}}, rows...)
 			tSelection = 0

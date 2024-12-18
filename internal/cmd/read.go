@@ -23,18 +23,13 @@ var readCmd = &cobra.Command{
 			return
 		}
 
-		s, err := c.Files.GetScroll(name)
+		s, err := c.Storage.Get(name)
 		if err != nil {
 			if flags.Debug() {
 				fmt.Printf("%+v\n", err)
 			}
 
 			fmt.Println("failed to retrieve scroll.")
-			return
-		}
-
-		if s.Type == "plain-text" {
-			fmt.Println("unable to cast a plain text scroll")
 			return
 		}
 

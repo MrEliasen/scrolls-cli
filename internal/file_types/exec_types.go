@@ -1,9 +1,4 @@
-package file_handler
-
-type ExecCommand struct {
-	Exec     ExecArgs
-	TempFile *FileHandler
-}
+package file_types
 
 type ExecArgs struct {
 	Bin           string

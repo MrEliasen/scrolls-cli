@@ -1,15 +1,15 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/mreliasen/scrolls-cli/internal/flags"
+	"github.com/mreliasen/scrolls-cli/internal/library"
 	"github.com/mreliasen/scrolls-cli/internal/scrolls"
-	"github.com/mreliasen/scrolls-cli/internal/scrolls/file_handler"
 	"github.com/spf13/cobra"
 )
 
@@ -28,7 +28,7 @@ var castCmd = &cobra.Command{
 			return
 		}
 
-		s, err := c.Files.GetScroll(name)
+		s, err := c.Storage.Get(name)
 		if err != nil {
 			if flags.Debug() {
 				fmt.Printf("%+v\n", err)
@@ -38,74 +38,76 @@ var castCmd = &cobra.Command{
 			return
 		}
 
-		if s.Type == "plain-text" {
+		if s.Type() == "plain-text" {
 			fmt.Println("unable to cast a plain text scroll")
 			return
 		}
 
-		ex := s.GetExec()
-		if ex == nil {
+		ex := s.Exec()
+		if ex.Bin == "" {
 			fmt.Println("no type set for this scroll")
 			return
 		}
 
-		if !runAsFile(s, ex) {
-			err = castInline(s, ex)
+		if !runAsFile(s) {
+			err = castInline(s)
 			if err == nil {
 				return
 			}
 		}
 
-		tmp := s.MakeTempFile(ex.Exec.Ext)
-		if tmp == nil {
+		tmp, err := c.Storage.NewTempFile(s)
+		if err != nil {
 			log.Fatalln("Error casting scroll, failed prepare the scroll")
 			return
 		}
 
-		err = castFile(tmp, ex)
+		err = castFile(s, tmp.Path())
 		if err != nil {
 			log.Fatalf("Error casting scroll: %s", err.Error())
 		}
+
+		tmp.Delete()
 	},
 }
 
-func runAsFile(s *file_handler.FileHandler, ex *file_handler.ExecCommand) bool {
-	if ex.Exec.FileOnly {
+func runAsFile(s *library.Scroll) bool {
+	ex := s.Exec()
+	if ex.FileOnly {
 		return true
 	}
 
 	// some hacky overrides
-	switch ex.Exec.Bin {
+	switch ex.Bin {
 	case "php":
-		for _, l := range s.Lines {
-			if strings.Contains(l, "<?") {
-				return true
-			}
+		if bytes.Contains(s.Body(), []byte("<?")) {
+			return true
 		}
 	}
 
 	return false
 }
 
-func castInline(s *file_handler.FileHandler, ex *file_handler.ExecCommand) error {
-	args := ex.Exec.Args
-	args = append(args, s.Body())
+func castInline(s *library.Scroll) error {
+	ex := s.Exec()
+	args := append(ex.Args, string(s.Body()))
 
-	scroll := exec.Command(ex.Exec.Bin, args...)
+	scroll := exec.Command(ex.Bin, args...)
 	scroll.Stdout = os.Stdout
 	scroll.Stderr = os.Stderr
 
 	return scroll.Run()
 }
 
-func castFile(s *file_handler.FileHandler, ex *file_handler.ExecCommand) error {
-	args := []string{s.Path()}
+func castFile(s *library.Scroll, path string) error {
+	args := []string{s.Library().ConfigDir()}
+	ex := s.Exec()
 
-	if ex.Exec.AlwaysUseArgs {
-		args = append(ex.Exec.Args, s.Path())
+	if ex.AlwaysUseArgs {
+		args = append(ex.Args, path)
 	}
 
-	scroll := exec.Command(ex.Exec.Bin, args...)
+	scroll := exec.Command(ex.Bin, args...)
 	scroll.Stdout = os.Stdout
 	scroll.Stderr = os.Stderr
 

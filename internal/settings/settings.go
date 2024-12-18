@@ -120,7 +120,7 @@ func (s *Settings) GetEditor() string {
 func (s *Settings) SetEditor(editor string) error {
 	_, err := exec.LookPath(editor)
 	if err != nil {
-		return fmt.Errorf("the editor \"%s\" does not seem to exist on your system\n", editor)
+		return fmt.Errorf("the editor \"%s\" does not seem to exist on your system", editor)
 	}
 
 	viper.Set("editor", editor)
@@ -163,4 +163,13 @@ func (s *Settings) GetLibrary() string {
 func (s *Settings) SetLibrary(path string) {
 	viper.Set("library", path)
 	s.changed = true
+}
+
+func (s *Settings) SetMigrationVersion(v string) {
+	viper.Set("migration_version", v)
+	s.changed = true
+}
+
+func (s *Settings) GetMigrationVersion() string {
+	return viper.GetString("migration_version")
 }

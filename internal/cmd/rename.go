@@ -23,7 +23,7 @@ var renameCmd = &cobra.Command{
 			return
 		}
 
-		err = c.Files.Rename(name, newName)
+		err = c.Storage.Rename(name, newName)
 		if err != nil {
 			fmt.Println(err.Error())
 			return

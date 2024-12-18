@@ -41,7 +41,7 @@ var deleteCmd = &cobra.Command{
 			return
 		}
 
-		c.Files.DeleteScroll(name)
+		c.Storage.Delete(name)
 	},
 }
 

@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/mreliasen/scrolls-cli/internal/settings"
@@ -30,8 +29,6 @@ func init() {
 	configCmd.AddCommand(configGetCmd)
 	configSetCmd.AddCommand(setEditorCmd)
 	configGetCmd.AddCommand(getEditorCmd)
-	configSetCmd.AddCommand(setLibraryCmd)
-	configGetCmd.AddCommand(GetLibraryCmd)
 }
 
 var getEditorCmd = &cobra.Command{
@@ -94,111 +91,5 @@ var setEditorCmd = &cobra.Command{
 		}
 
 		fmt.Printf("editor updated to: %s%s\n", v, s)
-	},
-}
-
-var GetLibraryCmd = &cobra.Command{
-	Use:   "library",
-	Short: "Get the path to where your scrolls are stored.",
-	Run: func(cmd *cobra.Command, args []string) {
-		settings, err := settings.LoadSettings()
-		if err != nil {
-			fmt.Printf("%s\n", err.Error())
-			return
-		}
-
-		e := settings.GetLibrary()
-		if e == "" {
-			fmt.Printf("no library set, using default location %s\n", e)
-			return
-		}
-
-		fmt.Printf("%s\n", e)
-	},
-}
-
-var setLibraryCmd = &cobra.Command{
-	Use:   "library <path>",
-	Short: "Set the path to where you want to store you scrolls. Scrolls will be automatically moved to the new location",
-	Args:  cobra.MaximumNArgs(1),
-	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
-		return []string{}, cobra.ShellCompDirectiveDefault
-	},
-	Run: func(cmd *cobra.Command, args []string) {
-		settings, err := settings.LoadSettings()
-		if err != nil {
-			fmt.Printf("%s\n", err.Error())
-			return
-		}
-
-		v := ""
-		if len(args) > 0 {
-			v = strings.Trim(args[0], " ")
-		}
-
-		src := settings.GetLibrary()
-		settings.SetLibrary(v)
-		loc := settings.GetLibrary()
-
-		if src == loc {
-			fmt.Println("your scrolls location is already set to this location.")
-			return
-		}
-
-		if v != "" {
-			stat, err := os.Stat(v)
-			if err != nil {
-				if !os.IsNotExist(err) {
-					fmt.Println("failed to set new library location.")
-					fmt.Println(err.Error())
-					return
-				}
-
-				err = os.MkdirAll(v, 0o755)
-				if err != nil {
-					fmt.Println("failed to create the new library folder, as it did not already exist.")
-					return
-				}
-			} else {
-				if !stat.IsDir() {
-					fmt.Println("failed to set new library location. The specified location is not a directory.")
-					return
-				}
-			}
-		}
-
-		settings.PersistChanges()
-
-		files, err := os.ReadDir(src)
-		if err != nil {
-			fmt.Println("failed to set new library location.")
-			fmt.Println(err.Error())
-			return
-		}
-
-		fmt.Println("migrating scrolls, please wait..")
-
-		i := 0
-		f := 0
-		for _, entry := range files {
-			if entry.IsDir() {
-				continue
-			}
-
-			err = os.Rename(
-				fmt.Sprintf("%s/%s", src, entry.Name()),
-				fmt.Sprintf("%s/%s", loc, entry.Name()),
-			)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "failed to move scroll: %s\n", entry.Name())
-				fmt.Fprintf(os.Stderr, "%s\n", err.Error())
-				f++
-			} else {
-				i++
-			}
-		}
-
-		fmt.Printf("Library location set to: %s\n", loc)
-		fmt.Printf("Scrolls Moved: %d successfully, %d failed\n", i, f)
 	},
 }
