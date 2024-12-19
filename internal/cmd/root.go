@@ -71,6 +71,9 @@ func init() {
 			// first migration? also migrate scrolls to db
 			if ver == "v0.0.0" {
 				err := lib.MigrateScrolls(config.GetLibrary())
+				status := 0
+				fmt.Println("Sorry for the interruption!")
+
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "failed to migrate scrolls to db\n")
 					fmt.Fprintf(os.Stderr, "run with --debug to see more details.\n")
@@ -79,12 +82,16 @@ func init() {
 						fmt.Fprintf(os.Stderr, "migration error: %s\n\n", err.Error())
 					}
 
-					return
+					fmt.Println("Scrolls have been migrated to SQLite, the old format scrolls still exists but are no longer in use.")
 				} else {
 					fmt.Println("Scrolls have been migrated to SQLite, the old format scrolls still exists but are no longer in use.")
 					fmt.Println("Kept purely \"just in case\" anything went wrong. You can find then in the old library path.")
 					fmt.Printf("Old library path: %s\n\n", config.GetLibrary())
+					fmt.Println("You can now continue to use scrolls as normal.")
+					status = 1
 				}
+
+				os.Exit(status)
 			}
 
 			config.SetMigrationVersion(utils.Version)
