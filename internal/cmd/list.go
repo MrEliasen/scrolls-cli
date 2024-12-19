@@ -34,7 +34,7 @@ var listCmd = &cobra.Command{
 		}
 
 		selection, cancel := tui.NewScrollList(list)
-		if cancel {
+		if selection == nil || cancel {
 			return
 		}
 

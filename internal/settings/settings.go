@@ -104,9 +104,20 @@ func (s *Settings) GetEditor() string {
 		return e
 	}
 
+	// defaults
 	_, err := exec.LookPath("vim")
 	if err == nil {
 		return "vim"
+	}
+
+	_, err = exec.LookPath("vi")
+	if err == nil {
+		return "vi"
+	}
+
+	_, err = exec.LookPath("zed")
+	if err == nil {
+		return "zed"
 	}
 
 	_, err = exec.LookPath("notepad")
@@ -118,11 +129,6 @@ func (s *Settings) GetEditor() string {
 }
 
 func (s *Settings) SetEditor(editor string) error {
-	_, err := exec.LookPath(editor)
-	if err != nil {
-		return fmt.Errorf("the editor \"%s\" does not seem to exist on your system", editor)
-	}
-
 	viper.Set("editor", editor)
 	s.changed = true
 	return nil

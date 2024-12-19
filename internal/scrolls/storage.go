@@ -1,6 +1,7 @@
 package scrolls
 
 import (
+	"bufio"
 	"bytes"
 	"errors"
 	"fmt"
@@ -8,9 +9,11 @@ import (
 	"os"
 	"os/exec"
 	"path"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/mreliasen/scrolls-cli/internal/file_types"
+	"github.com/mreliasen/scrolls-cli/internal/flags"
 	"github.com/mreliasen/scrolls-cli/internal/library"
 	"github.com/mreliasen/scrolls-cli/internal/settings"
 	"github.com/mreliasen/scrolls-cli/internal/tui"
@@ -99,7 +102,12 @@ func (c *StorageClient) New(name string, useTemplate bool, fromFile string) (*li
 		return nil, err
 	}
 
-	return c.client.Library.NewScroll(name, fType, f.Body())
+	s, err := c.client.Library.NewScroll(name, fType, f.Body())
+	if err == nil {
+		fmt.Println("Scroll created!")
+	}
+
+	return s, err
 }
 
 func (c *StorageClient) NewTempFile(scroll *library.Scroll) (*FileHandler, error) {
@@ -141,21 +149,41 @@ func (c *StorageClient) EditText(name string) error {
 	}
 
 	scroll.SetBody(f.Body())
-	return scroll.Save()
+	err = scroll.Save()
+
+	if err == nil {
+		fmt.Println("Scroll updated!")
+	}
+
+	return err
 }
 
 func (c *StorageClient) editFile(f *FileHandler, scroll *library.Scroll) (*FileHandler, error) {
-	editor := c.client.Settings.GetEditor()
-	cmd := exec.Command(editor, f.Path())
+	bin := c.client.Settings.GetEditor()
+
+	cmd := exec.Command(bin, f.Path())
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	log.Printf("opening in: %s, waiting to editor to close before proceeding..\n", c.client.Settings.GetEditor())
+	log.Printf("opening in: %s, waiting to editor to close before proceeding..\n", bin)
+
+	now := time.Now().Add(time.Second * time.Duration(2)).Unix()
 	err := cmd.Run()
 	if err != nil {
 		f.Delete()
 		return f, fmt.Errorf("editor error: %s", err.Error())
+	}
+
+	end := time.Now().Unix()
+
+	if flags.Debug() {
+		fmt.Printf("opening in external editor \"%s\": %t\n", bin, now > end)
+	}
+
+	if now > end {
+		fmt.Println("When you are done, Press Enter to continue..")
+		bufio.NewReader(os.Stdin).ReadString('\n')
 	}
 
 	_, err = f.Read()

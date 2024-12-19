@@ -62,8 +62,13 @@ var getEditorCmd = &cobra.Command{
 
 var setEditorCmd = &cobra.Command{
 	Use:   "editor <name/path>",
-	Short: "Set the editor to use when editing and writing scrolls",
-	Args:  cobra.ExactArgs(1),
+	Short: "Set the editor to use when editing scrolls",
+	Long: `Set the editor to use when editing scrolls. This includes terminal and external editors.
+Example (vim):	scrolls config set editor vim
+Example (zed):	scrolls config set editor zed
+Example (path):	scrolls config set editor "/abs/path/to/editor"
+	`,
+	Args: cobra.ExactArgs(1),
 	ValidArgsFunction: func(cmd *cobra.Command, args []string, toComplete string) ([]string, cobra.ShellCompDirective) {
 		return []string{}, cobra.ShellCompDirectiveDefault
 	},

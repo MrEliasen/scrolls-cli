@@ -316,7 +316,9 @@ func (l *Library) GetAllScrollsAutoComplete(name string) ([]*Scroll, error) {
 	scrolls := []*Scroll{}
 
 	for res.Next() {
-		scr := &Scroll{}
+		scr := &Scroll{
+			lib: l,
+		}
 		res.Scan(&scr.uuid, &scr.name, &scr.file_type, &scr.body)
 		scrolls = append(scrolls, scr)
 	}
@@ -354,7 +356,9 @@ func (l *Library) GetAllScrollsByType(t string) ([]*Scroll, error) {
 	scrolls := []*Scroll{}
 
 	for res.Next() {
-		scr := &Scroll{}
+		scr := &Scroll{
+			lib: l,
+		}
 		res.Scan(&scr.uuid, &scr.name, &scr.file_type, &scr.body)
 		scrolls = append(scrolls, scr)
 	}
@@ -386,7 +390,9 @@ func (l *Library) GetAllScrolls() ([]*Scroll, error) {
 	scrolls := []*Scroll{}
 
 	for res.Next() {
-		scr := &Scroll{}
+		scr := &Scroll{
+			lib: l,
+		}
 		res.Scan(&scr.uuid, &scr.name, &scr.file_type, &scr.body)
 		scrolls = append(scrolls, scr)
 	}
