@@ -80,7 +80,7 @@ func filterRows(rows []table.Row, term string) []table.Row {
 	filterd := []table.Row{}
 
 	for _, r := range rows {
-		if strings.Contains(r[0], term) {
+		if strings.Contains(r[0], term) || strings.Contains(r[1], term) {
 			filterd = append(filterd, r)
 		}
 	}
@@ -103,18 +103,19 @@ func (m model) View() string {
 func NewSelector(initial string) (string, bool) {
 	columns := []table.Column{
 		{Title: "File Type", Width: 25},
+		{Title: "Extension", Width: 10},
 	}
 
 	rows := []table.Row{}
 
 	i := 0
 	tSelection := -1
-	for bin := range file_types.ExecList {
+	for bin, cfg := range file_types.ExecList {
 		if initial == bin {
-			rows = append([]table.Row{{bin}}, rows...)
+			rows = append([]table.Row{{bin, cfg.Ext}}, rows...)
 			tSelection = 0
 		} else {
-			rows = append(rows, table.Row{bin})
+			rows = append(rows, table.Row{bin, cfg.Ext})
 		}
 		i++
 	}
