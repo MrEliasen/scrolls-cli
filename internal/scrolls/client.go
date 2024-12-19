@@ -83,15 +83,6 @@ func (c *Client) newRequest(method, endpoint string, body io.Reader) (*http.Requ
 	return req, nil
 }
 
-func (c *Client) doRequest(req *http.Request) (*http.Response, error) {
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return nil, err
-	}
-
-	return resp, nil
-}
-
 func (c *Client) apiCall(method, endpoint string, body io.Reader) (*http.Response, error) {
 	req, err := c.newRequest(method, endpoint, body)
 
