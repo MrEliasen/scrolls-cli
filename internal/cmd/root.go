@@ -78,6 +78,7 @@ func init() {
 			if ver == "v0.0.0" {
 				err := lib.MigrateScrolls(config.GetLibrary())
 				fmt.Println(tui.HighlightStyle.Render("Sorry for the interruption!"))
+				status := 0
 
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "failed to migrate scrolls to db\n")
@@ -86,14 +87,18 @@ func init() {
 					if flags.Debug() {
 						fmt.Fprintf(os.Stderr, "migration error: %s\n\n", err.Error())
 					}
-
-					os.Exit(0)
 				} else {
 					fmt.Println("Scrolls have been migrated to SQLite, the old format scrolls still exists but are no longer in use.")
 					fmt.Printf("You can find then in the old library path here: %s\n", tui.HighlightStyle.Render(path.Join(config.GetLibrary(), "scrolls")))
 					fmt.Printf("Your new scrolls DB is now the only thing to backup: %s\n", tui.HighlightStyle.Render(path.Join(config.GetLibrary(), "scrolls.db")))
 					fmt.Printf("%s\n\n", tui.SuccessStyle.Render("You can now continue to use scrolls as normal."))
+
+					config.SetMigrationVersion(utils.Version)
+					config.PersistChanges()
+					status = 1
 				}
+
+				os.Exit(status)
 			}
 
 			config.SetMigrationVersion(utils.Version)
