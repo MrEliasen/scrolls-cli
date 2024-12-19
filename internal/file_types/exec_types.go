@@ -18,6 +18,54 @@ var ExecList = map[string]ExecArgs{
 		AlwaysUseArgs: false,
 		Template:      "",
 	},
+	"json": {
+		Bin:           "",
+		Args:          []string{""},
+		Ext:           ".json",
+		FileOnly:      false,
+		AlwaysUseArgs: false,
+		Template:      "",
+	},
+	"toml": {
+		Bin:           "",
+		Args:          []string{""},
+		Ext:           ".toml",
+		FileOnly:      false,
+		AlwaysUseArgs: false,
+		Template:      "",
+	},
+	"yaml": {
+		Bin:           "",
+		Args:          []string{""},
+		Ext:           ".yaml",
+		FileOnly:      false,
+		AlwaysUseArgs: false,
+		Template:      "",
+	},
+	"sql": {
+		Bin:           "",
+		Args:          []string{""},
+		Ext:           ".sql",
+		FileOnly:      false,
+		AlwaysUseArgs: false,
+		Template:      "",
+	},
+	"html": {
+		Bin:           "",
+		Args:          []string{""},
+		Ext:           ".html",
+		FileOnly:      false,
+		AlwaysUseArgs: false,
+		Template:      "",
+	},
+	"xml": {
+		Bin:           "",
+		Args:          []string{""},
+		Ext:           ".xml",
+		FileOnly:      false,
+		AlwaysUseArgs: false,
+		Template:      "",
+	},
 	"php": {
 		Bin:           "php",
 		Args:          []string{"-r"},
@@ -52,7 +100,6 @@ func main() {
 		FileOnly:      false,
 		AlwaysUseArgs: false,
 		Template: `#!/bin/bash
-
 main() {
   echo "Hello, World!"
 }
@@ -66,11 +113,10 @@ main`,
 		FileOnly:      false,
 		AlwaysUseArgs: false,
 		Template: `def main():
-print("Hello, World!")
+	print("Hello, World!")
 
 if __name__ == "__main__":
-    main()
-`,
+    main()`,
 	},
 	"node": {
 		Bin:           "node",
@@ -79,7 +125,7 @@ if __name__ == "__main__":
 		FileOnly:      false,
 		AlwaysUseArgs: false,
 		Template: `function main() {
-	console.log("Hello, World!);
+	console.log("Hello, World!");
 }
 
 main();`,
@@ -94,7 +140,7 @@ main();`,
   puts "Hello, World!"
 end
 
-main`,
+main()`,
 	},
 	"perl": {
 		Bin:           "perl",
@@ -111,7 +157,7 @@ sub main {
     print "Hello, World!\n";
 }
 
-main();`,
+main;`,
 	},
 	"R": {
 		Bin:           "Rscript",
@@ -162,7 +208,7 @@ main = putStrLn "Hello, World!"`,
 		Ext:           ".lua",
 		FileOnly:      false,
 		AlwaysUseArgs: false,
-		Template: `local function main()
+		Template: `function main()
     print("Hello, World!")
 end
 
@@ -193,6 +239,16 @@ main()`,
 }
 `,
 	},
+	"batch": {
+		Bin:           "cmd",
+		Args:          []string{"/c"},
+		Ext:           ".bat",
+		FileOnly:      false,
+		AlwaysUseArgs: false,
+		Template: `@echo off
+echo Hello, World!
+pause`,
+	},
 	"powershell": {
 		Bin:           "powershell",
 		Args:          []string{"-command"},
@@ -200,7 +256,7 @@ main()`,
 		FileOnly:      false,
 		AlwaysUseArgs: false,
 		Template: `function Main {
-    Write-Output "Hello, World!"
+    Write-Host "Hello, World!"
 }
 
 Main`,
