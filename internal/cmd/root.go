@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path"
 	"time"
 
 	semver "github.com/hashicorp/go-version"
@@ -45,7 +46,6 @@ func init() {
 		}
 
 		if !runMigrations {
-
 			parsedCLIVersion, err := semver.NewVersion(utils.Version)
 			if err != nil {
 				return
@@ -62,6 +62,12 @@ func init() {
 		if runMigrations {
 			lib, err := library.LoadLibrary()
 			if err != nil {
+				fmt.Fprintf(os.Stderr, "failed to initialise scrolls library: %s\n", err.Error())
+				return
+			}
+
+			err = lib.Migrate()
+			if err != nil {
 				if flags.Debug() {
 					fmt.Fprintf(os.Stderr, "failed to run migrations: %s\n", err.Error())
 				}
@@ -71,27 +77,23 @@ func init() {
 			// first migration? also migrate scrolls to db
 			if ver == "v0.0.0" {
 				err := lib.MigrateScrolls(config.GetLibrary())
-				status := 0
-				fmt.Println("Sorry for the interruption!")
+				fmt.Println(tui.HighlightStyle.Render("Sorry for the interruption!"))
 
 				if err != nil {
 					fmt.Fprintf(os.Stderr, "failed to migrate scrolls to db\n")
-					fmt.Fprintf(os.Stderr, "run with --debug to see more details.\n")
+					fmt.Fprintf(os.Stderr, "run with %s to see more details.\n", tui.HighlightStyle.Render("--debug"))
 
 					if flags.Debug() {
 						fmt.Fprintf(os.Stderr, "migration error: %s\n\n", err.Error())
 					}
 
-					fmt.Println("Scrolls have been migrated to SQLite, the old format scrolls still exists but are no longer in use.")
+					os.Exit(0)
 				} else {
 					fmt.Println("Scrolls have been migrated to SQLite, the old format scrolls still exists but are no longer in use.")
-					fmt.Println("Kept purely \"just in case\" anything went wrong. You can find then in the old library path.")
-					fmt.Printf("Old library path: %s\n\n", config.GetLibrary())
-					fmt.Println("You can now continue to use scrolls as normal.")
-					status = 1
+					fmt.Printf("You can find then in the old library path here: %s\n", tui.HighlightStyle.Render(path.Join(config.GetLibrary(), "scrolls")))
+					fmt.Printf("Your new scrolls DB is now the only thing to backup: %s\n", tui.HighlightStyle.Render(path.Join(config.GetLibrary(), "scrolls.db")))
+					fmt.Printf("%s\n\n", tui.SuccessStyle.Render("You can now continue to use scrolls as normal."))
 				}
-
-				os.Exit(status)
 			}
 
 			config.SetMigrationVersion(utils.Version)

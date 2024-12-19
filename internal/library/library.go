@@ -401,7 +401,9 @@ func (l *Library) GetAllScrolls() ([]*Scroll, error) {
 }
 
 func (l *Library) MigrateScrolls(libPath string) error {
-	files, err := os.ReadDir(path.Join(libPath, "scrolls"))
+	libPath = path.Join(libPath, "scrolls")
+
+	files, err := os.ReadDir(libPath)
 	if err != nil {
 		return err
 	}
@@ -414,7 +416,9 @@ func (l *Library) MigrateScrolls(libPath string) error {
 		scroll := file_handler.New(libPath, entry.Name())
 		err = scroll.Load()
 		if err != nil {
-			break
+			if flags.Debug() {
+				fmt.Fprintf(os.Stderr, "%+v", err)
+			}
 		}
 
 		l.NewScroll(scroll.Name, scroll.Type, []byte(scroll.Body()))
