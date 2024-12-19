@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path"
 	"sync"
 
 	"github.com/google/uuid"
@@ -26,32 +27,32 @@ func LoadLibrary() (*Library, error) {
 		return library, nil
 	}
 
-	cfgDir, err := settings.GetConfigDir()
+	s, err := settings.LoadSettings()
 	if err != nil {
 		return nil, err
 	}
 
-	db, err := NewConnection(cfgDir)
+	db, err := NewConnection(s.GetLibrary())
 	if err != nil {
 		return nil, fmt.Errorf("failed to load scrolls db: %w", err)
 	}
 
 	library = &Library{
-		dbClient: db,
-		cfgDir:   cfgDir,
+		dbClient:   db,
+		dbLocation: s.GetLibrary(),
 	}
 
 	return library, nil
 }
 
 type Library struct {
-	mu       sync.Mutex
-	dbClient *ScrollsDB
-	cfgDir   string
+	mu         sync.Mutex
+	dbClient   *ScrollsDB
+	dbLocation string
 }
 
 func (l *Library) ConfigDir() string {
-	return l.cfgDir
+	return l.dbLocation
 }
 
 func (l *Library) Migrate() error {
@@ -65,7 +66,7 @@ func (l *Library) Migrate() error {
 		// do we have a db connection still?
 		fmt.Printf("\n\nFailed to run migrations: failed to backup sqlite db.\n")
 		fmt.Printf("You can force the migration without backing up using --skip-backup, however please manually backup your scrolls db first.\n")
-		fmt.Printf("DB location: %s\n", l.cfgDir)
+		fmt.Printf("DB location: %s\n", l.dbLocation)
 		fmt.Printf("Then run: scrolls --skip-backup\n\n")
 		return nil
 	}
@@ -394,7 +395,7 @@ func (l *Library) GetAllScrolls() ([]*Scroll, error) {
 }
 
 func (l *Library) MigrateScrolls(libPath string) error {
-	files, err := os.ReadDir(libPath)
+	files, err := os.ReadDir(path.Join(libPath, "scrolls"))
 	if err != nil {
 		return err
 	}

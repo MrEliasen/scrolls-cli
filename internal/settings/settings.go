@@ -157,7 +157,7 @@ func (s *Settings) GetLibrary() string {
 		panic("failed to get configuration path")
 	}
 
-	return path.Join(configDir, "/scrolls")
+	return configDir
 }
 
 func (s *Settings) SetLibrary(path string) {
