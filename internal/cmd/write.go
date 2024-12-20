@@ -21,7 +21,7 @@ var writeCmd = &cobra.Command{
 			return
 		}
 
-		c.Files.NewScroll(name, flags.Template(), flags.FromFile())
+		c.Storage.New(name, flags.Template(), flags.FromFile())
 	},
 }
 

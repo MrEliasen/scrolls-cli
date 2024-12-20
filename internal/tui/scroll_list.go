@@ -7,17 +7,17 @@ import (
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"github.com/mreliasen/scrolls-cli/internal/scrolls/file_handler"
+	"github.com/mreliasen/scrolls-cli/internal/library"
 )
 
 type listResult struct {
-	value  *file_handler.FileHandler
+	value  *library.Scroll
 	cancel bool
 }
 
 type listModel struct {
 	table     table.Model
-	list      []*file_handler.FileHandler
+	list      []*library.Scroll
 	selection *listResult
 }
 
@@ -55,7 +55,7 @@ func (m listModel) View() string {
 		helpTextStyle.Render("\n  Enter:  Manage selected scroll\n  ↑↓/kj:  Move up/down the list\n  CTRL+C: Exit without selection")
 }
 
-func NewScrollList(scrolls []*file_handler.FileHandler) (*file_handler.FileHandler, bool) {
+func NewScrollList(scrolls []*library.Scroll) (*library.Scroll, bool) {
 	columns := []table.Column{
 		{Title: "Name", Width: 20},
 		{Title: "Type", Width: 10},
@@ -65,8 +65,8 @@ func NewScrollList(scrolls []*file_handler.FileHandler) (*file_handler.FileHandl
 
 	for _, f := range scrolls {
 		rows = append(rows, table.Row{
-			f.Name,
-			f.Type,
+			f.Name(),
+			f.Type(),
 		})
 	}
 

@@ -7,8 +7,8 @@ import (
 
 	"github.com/charmbracelet/huh"
 	"github.com/mreliasen/scrolls-cli/internal/flags"
+	"github.com/mreliasen/scrolls-cli/internal/library"
 	"github.com/mreliasen/scrolls-cli/internal/scrolls"
-	"github.com/mreliasen/scrolls-cli/internal/scrolls/file_handler"
 	"github.com/mreliasen/scrolls-cli/internal/tui"
 	"github.com/spf13/cobra"
 )
@@ -27,20 +27,20 @@ var listCmd = &cobra.Command{
 		}
 
 		st := flags.ScrollType()
-		list, err := c.Files.ListScrolls(strings.ToLower(st))
+		list, err := c.Library.GetAllScrollsByType(strings.ToLower(st))
 		if err != nil {
 			fmt.Println(err.Error())
 			return
 		}
 
 		selection, cancel := tui.NewScrollList(list)
-		if cancel {
+		if selection == nil || cancel {
 			return
 		}
 
 		action := ""
 		form := huh.NewSelect[string]().
-			Title(fmt.Sprintf("Selected Scroll: %s", selection.Name)).
+			Title(fmt.Sprintf("Selected Scroll: %s", selection.Name())).
 			Options(
 				huh.NewOption("Edit", "edit"),
 				huh.NewOption("Delete", "delete"),
@@ -59,7 +59,7 @@ var listCmd = &cobra.Command{
 
 		switch action {
 		case "edit":
-			c.Files.EditScroll(selection.Name)
+			c.Storage.EditText(selection.Name())
 		case "delete":
 			scrollDelete(selection)
 		}
@@ -71,11 +71,11 @@ func init() {
 	flags.AddScrollTypeFlag(listCmd)
 }
 
-func scrollDelete(f *file_handler.FileHandler) {
+func scrollDelete(s *library.Scroll) {
 	confirm := false
 
 	form := huh.NewConfirm().
-		Title(fmt.Sprintf("Confirm you want to DELETE the scroll: %s?", f.Name)).
+		Title(fmt.Sprintf("Confirm you want to DELETE the scroll: %s?", s.Name())).
 		Affirmative("Yes").
 		Negative("No").
 		Value(&confirm)
@@ -89,5 +89,5 @@ func scrollDelete(f *file_handler.FileHandler) {
 		return
 	}
 
-	f.Delete()
+	s.Delete()
 }

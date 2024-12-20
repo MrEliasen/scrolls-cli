@@ -27,7 +27,7 @@ var editTextCmd = &cobra.Command{
 			return
 		}
 
-		c.Files.EditScroll(name)
+		c.Storage.EditText(name)
 	},
 }
 
@@ -45,14 +45,19 @@ var editTypeCmd = &cobra.Command{
 			return
 		}
 
-		f, err := c.Files.GetScroll(name)
+		s, err := c.Storage.Get(name)
 		if err != nil {
 			fmt.Println("failed to read scroll.")
 			return
 		}
 
-		f.Type, _ = tui.NewSelector(f.Type)
-		f.Save(false)
+		t, cancelled := tui.NewSelector(s.Type())
+		if cancelled {
+			return
+		}
+
+		s.SetType(t)
+		s.Save()
 	},
 }
 

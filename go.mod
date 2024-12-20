@@ -10,6 +10,7 @@ require (
 	github.com/google/uuid v1.4.0
 	github.com/hashicorp/go-version v1.7.0
 	github.com/kirsle/configdir v0.0.0-20170128060238-e45d2f54772f
+	github.com/mattn/go-sqlite3 v1.14.24
 	github.com/spf13/cobra v1.8.1
 	github.com/spf13/viper v1.19.0
 )

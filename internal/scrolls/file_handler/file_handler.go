@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mreliasen/scrolls-cli/internal/file_types"
 	"github.com/mreliasen/scrolls-cli/internal/flags"
 	"github.com/mreliasen/scrolls-cli/internal/settings"
 )
@@ -47,18 +48,6 @@ type FileHandler struct {
 	Tags  []string
 	Lines []string
 	path  string
-}
-
-func (f *FileHandler) GetExec() *ExecCommand {
-	if f.Type == "" {
-		return nil
-	}
-
-	exec := &ExecCommand{
-		Exec: ExecList[f.Type],
-	}
-
-	return exec
 }
 
 func (f *FileHandler) MakeTempFile(ext string) *FileHandler {
@@ -124,7 +113,7 @@ func (f *FileHandler) WriteHeader() error {
 func (f *FileHandler) Delete() error {
 	err := os.Remove(f.path)
 	if err != nil {
-		return fmt.Errorf("failed to delete scroll \"%s\", %w\n", f.path, err)
+		return fmt.Errorf("failed to delete scroll \"%s\", %w", f.path, err)
 	}
 
 	if flags.Debug() {
@@ -243,7 +232,7 @@ func (f *FileHandler) parse(lines []string) {
 		case "name":
 			f.Name = val
 		case "type":
-			if _, found := ExecList[val]; found {
+			if _, found := file_types.ExecList[val]; found {
 				f.Type = val
 			}
 		case "tags":
