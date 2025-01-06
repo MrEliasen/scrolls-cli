@@ -151,6 +151,7 @@ func (l *Library) Exists(name string) bool {
 			scrolls
 		WHERE
 			name = ?
+		COLLATE NOCASE
 	`, name)
 
 	if res.Err() != nil {
@@ -274,6 +275,7 @@ func (l *Library) GetByName(scroll_name string) (*Scroll, error) {
 			scrolls
 		WHERE
 			name = ?
+		COLLATE NOCASE
 	`, scroll_name)
 
 	scroll := Scroll{
@@ -305,6 +307,7 @@ func (l *Library) GetAllScrollsAutoComplete(name string) ([]*Scroll, error) {
 			scrolls
 		WHERE
 			name LIKE '%' || ?
+		COLLATE NOCASE
 	`, name)
 	if err != nil {
 		if flags.Debug() {
