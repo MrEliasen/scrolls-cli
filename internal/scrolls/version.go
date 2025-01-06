@@ -21,7 +21,7 @@ type VersionInfoResponse struct {
 	Version VersionInfo `json:"latest"`
 }
 
-func (u *VersionClient) getLatestRelease() (VersionInfo, error) {
+func (u *VersionClient) GetLatestReleaseVersion() (VersionInfo, error) {
 	res, err := u.client.Get("/releases/latest.json", nil)
 	if err != nil {
 		return VersionInfo{}, fmt.Errorf("failed to get release version info: %s", err)
@@ -55,19 +55,19 @@ func (u *VersionClient) Update() error {
 }
 
 func (u *VersionClient) CheckForUpdates(autoUpdate bool) (currentVersion, latestVersion string, updateAvailable bool, updateError error) {
-	latest, err := u.getLatestRelease()
+	latest, err := u.GetLatestReleaseVersion()
 	if err != nil {
-		return "", "", false, fmt.Errorf("Error fetching latest version: %w", err)
+		return "", "", false, fmt.Errorf("error fetching latest version: %w", err)
 	}
 
 	parsedVersion, err := semver.NewVersion(utils.Version)
 	if err != nil {
-		return "", "", false, fmt.Errorf("Error parsing current version: %w", err)
+		return "", "", false, fmt.Errorf("error parsing current version: %w", err)
 	}
 
 	parsedLatest, err := semver.NewVersion(latest.Version)
 	if err != nil {
-		return "", "", false, fmt.Errorf("Error parsing latest version: %w", err)
+		return "", "", false, fmt.Errorf("error parsing latest version: %w", err)
 	}
 
 	currentVersion = parsedVersion.String()
