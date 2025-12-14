@@ -56,6 +56,11 @@ func (m listModel) View() string {
 }
 
 func NewScrollList(scrolls []*library.Scroll) (*library.Scroll, bool) {
+	if len(scrolls) == 0 {
+		fmt.Println("No scrolls found.")
+		return nil, true
+	}
+
 	columns := []table.Column{
 		{Title: "Name", Width: 20},
 		{Title: "Type", Width: 10},

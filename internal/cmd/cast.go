@@ -100,8 +100,12 @@ func castInline(s *library.Scroll) error {
 }
 
 func castFile(s *library.Scroll, path string) error {
-	args := []string{s.Library().ConfigDir()}
 	ex := s.Exec()
+	args := []string{}
+
+	if len(ex.Args) > 0 {
+		args = append(args, ex.Args...)
+	}
 
 	if ex.AlwaysUseArgs {
 		args = append(ex.Args, path)

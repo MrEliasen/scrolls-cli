@@ -66,12 +66,14 @@ func (c *Client) newRequest(method, endpoint string, body io.Reader) (*http.Requ
 		return nil, err
 	}
 
-	url, err = url.Parse(endpoint)
+	rel, err := url.Parse(endpoint)
 	if err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest(method, url.String(), body)
+	full := url.ResolveReference(rel)
+
+	req, err := http.NewRequest(method, full.String(), body)
 	if err != nil {
 		return nil, err
 	}

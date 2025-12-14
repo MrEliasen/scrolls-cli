@@ -65,9 +65,9 @@ func (l *Library) Migrate() error {
 
 		// do we have a db connection still?
 		fmt.Printf("\n\nFailed to run migrations: failed to backup sqlite db.\n")
-		fmt.Printf("You can force the migration without backing up using --skip-backup, however please manually backup your scrolls db first.\n")
+		fmt.Printf("Please manually backup your scrolls db.\n")
 		fmt.Printf("DB location: %s\n", l.dbLocation)
-		fmt.Printf("Then run: scrolls --skip-backup\n\n")
+		fmt.Printf("Then run: scrolls to attempt another migration.\n\n")
 		return nil
 	}
 

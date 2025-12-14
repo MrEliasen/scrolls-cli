@@ -17,14 +17,12 @@ func UnmarshalResp[T any](r *http.Response) (T, error) {
 }
 
 func Unmarshal[T any](p []byte) (T, error) {
-	t := new(T)
-
+	var t T
 	err := json.Unmarshal(p, &t)
-
-	return *t, err
+	return t, err
 }
 
-func Marshal(data interface{}) ([]byte, error) {
+func Marshal(data any) ([]byte, error) {
 	buf := &bytes.Buffer{}
 	err := json.NewEncoder(buf).Encode(data)
 	return buf.Bytes(), err

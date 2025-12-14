@@ -3,7 +3,6 @@ package scrolls
 import (
 	"bufio"
 	"bytes"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -69,7 +68,7 @@ func (c *StorageClient) New(name string, useTemplate bool, fromFile string) (*li
 	if fromFile != "" {
 		ffbyte, err := os.ReadFile(fromFile)
 		if err != nil {
-			return nil, errors.New("failed to read the content of \"%s\"; is the path correct?")
+			return nil, fmt.Errorf("failed to read the content of %q; is the path correct?", fromFile)
 		}
 
 		templateContent = ffbyte
@@ -166,7 +165,7 @@ func (c *StorageClient) editFile(f *FileHandler, scroll *library.Scroll) (*FileH
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	log.Printf("opening in: %s, waiting to editor to close before proceeding..\n", bin)
+	log.Printf("opening in: %s, waiting for editor to close before proceeding..\n", bin)
 
 	now := time.Now().Add(time.Second * time.Duration(2)).Unix()
 	err := cmd.Run()
@@ -176,14 +175,14 @@ func (c *StorageClient) editFile(f *FileHandler, scroll *library.Scroll) (*FileH
 	}
 
 	end := time.Now().Unix()
-
+	isQuick := end <= now
 	if flags.Debug() {
-		fmt.Printf("opening in external editor \"%s\": %t\n", bin, now > end)
+		fmt.Printf("editor %q exited quickly: %t\n", bin, isQuick)
 	}
 
-	if now > end {
+	if isQuick {
 		fmt.Println("When you are done, Press Enter to continue..")
-		bufio.NewReader(os.Stdin).ReadString('\n')
+		_, _ = bufio.NewReader(os.Stdin).ReadString('\n')
 	}
 
 	_, err = f.Read()
@@ -191,12 +190,13 @@ func (c *StorageClient) editFile(f *FileHandler, scroll *library.Scroll) (*FileH
 		return f, err
 	}
 
+	defer f.Delete()
+
 	if scroll != nil {
 		if bytes.Equal(f.Body(), scroll.Body()) {
 			return f, nil
 		}
 	}
 
-	f.Delete()
 	return f, nil
 }

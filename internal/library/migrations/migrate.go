@@ -103,9 +103,8 @@ func rollback(db *sql.DB) func(shared.MigrationInterface) error {
 		DELETE FROM
 			migrations
 		WHERE
-			name = ?
-		LIMIT 1
-	`, m.Name())
+			migration = ?`,
+			m.Name())
 
 		return err
 	}

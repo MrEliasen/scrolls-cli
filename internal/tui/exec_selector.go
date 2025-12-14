@@ -42,7 +42,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case "ctrl+c":
-			m.selection.cancel = true
+			if m.selection != nil {
+				m.selection.cancel = true
+			}
 			return m, tea.Quit
 
 		case "enter":
@@ -65,12 +67,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.table, cmd = m.table.Update(msg)
 	} else {
 		m.input, cmd = m.input.Update(msg)
-
 		m.table.SetRows(filterRows(m.rows, m.input.Value()))
-		tModel, tCmd := m.table.Update(msg)
-		m.table = tModel
-
-		tea.Batch(cmd, tCmd)
 	}
 
 	return m, cmd

@@ -27,9 +27,8 @@ func (m *Migration) DownSQL() string {
 }
 
 func (m *Migration) Up(db *sql.DB, migrate func(MigrationInterface) error) error {
-	err := migrate(m)
-	if err != nil {
-		return nil
+	if err := migrate(m); err != nil {
+		return err
 	}
 
 	if m.up != nil {

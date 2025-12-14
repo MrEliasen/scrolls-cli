@@ -38,6 +38,11 @@ var listCmd = &cobra.Command{
 			return
 		}
 
+		if len(list) == 0 {
+			fmt.Println("No scrolls found.")
+			return
+		}
+
 		action := ""
 		form := huh.NewSelect[string]().
 			Title(fmt.Sprintf("Selected Scroll: %s", selection.Name())).

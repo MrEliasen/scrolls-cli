@@ -76,8 +76,7 @@ func LoadSettings() (*Settings, error) {
 			}
 
 			fmt.Printf("Warning: could not parse JSON config from file %s\n", configFile)
-			fmt.Printf("Fix the syntax errors on the file, or use the --reset-config flag to replace it with a fresh one.\n")
-			fmt.Printf("E.g. scrolls config init --reset-config\n")
+			fmt.Printf("Fix the syntax errors in the file and try again..\n")
 
 			return nil, err
 		default:
@@ -104,25 +103,32 @@ func (s *Settings) GetEditor() string {
 		return e
 	}
 
-	// defaults
-	_, err := exec.LookPath("vim")
-	if err == nil {
-		return "vim"
+	candidates := []string{
+		"nvim",
+		"vim",
+		"vi",
+		"nano",
+		"emacs",
+		"micro",
+		"hx",
+		"code",
+		"zed",
+		"subl",
+		"sublime_text",
+		"notepad++",
+		"notepad",
+		"gedit",
+		"kate",
 	}
 
-	_, err = exec.LookPath("vi")
-	if err == nil {
-		return "vi"
+	for _, c := range candidates {
+		if _, err := exec.LookPath(c); err == nil {
+			return c
+		}
 	}
 
-	_, err = exec.LookPath("zed")
-	if err == nil {
-		return "zed"
-	}
-
-	_, err = exec.LookPath("notepad")
-	if err == nil {
-		return "notepad"
+	if e == "" {
+		fmt.Fprintln(os.Stderr, "No editor configured and no default editor found on PATH")
 	}
 
 	return ""
